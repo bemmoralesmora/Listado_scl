@@ -1,0 +1,19 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html{
+    font-family: monospace;
+    font-size: 10px;
+}
+
+:root {
+    --piel-claro: rgb(236, 216, 190);
+    --cafe-oscuro:rgb(116, 88, 88);
+    --rosa-claro: rgb(238, 156, 184);
+    --blanco: white;
+    --azul-oscuro: rgb(68, 68, 134);
+    --negro: rgb(0, 0, 0);
+}

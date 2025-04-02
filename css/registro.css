@@ -1,0 +1,214 @@
+/* Estilos originales (para pantallas grandes) */
+.registro {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.registro label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 40rem;
+}
+
+.registro label i {
+    color: var(--azul-oscuro);
+    font-size: 30px;
+    min-width: 30px;
+}
+
+.input-fecha-r {
+    all: unset;
+    width: 25rem;
+    height: 4rem;
+    border-radius: 1rem;
+    cursor: pointer;
+    background-color: var(--blanco);
+    font-size: 20px;
+    padding: 0.5rem;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.input-fecha-r:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.buscar {
+    width: 10rem;
+    height: 4rem;
+    border-radius: 1rem;
+    background-color: var(--azul-oscuro);
+    font-family: "Boldonse", system-ui;
+    color: var(--blanco);
+    font-size: 12px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.buscar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.datos_alumno {
+    width: 40rem;
+    height: 5rem;
+    border-radius: 2rem;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    font-family: "Boldonse", system-ui;
+    color: var(--blanco);
+    font-size: 12px;
+    background-color: rgba(0,0,0,0.2);
+    margin-top: 1rem;
+}
+
+/* Estilos para las cajas de estadísticas */
+.stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    height: 100%;
+}
+
+.stat-label {
+    font-family: "Boldonse", system-ui;
+    color: var(--blanco);
+    font-size: 12px;
+    margin-bottom: 0.3rem;
+}
+
+.stat-value {
+    font-family: "Boldonse", system-ui;
+    color: var(--blanco);
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Estilos para los diferentes estados */
+.datos_alumno .stat-box:nth-child(1) { /* Presentes */
+    background-color: rgba(76, 175, 80, 0.3);
+    border-radius: 1rem 0 0 1rem;
+}
+
+.datos_alumno .stat-box:nth-child(2) { /* Ausentes */
+    background-color: rgba(244, 67, 54, 0.3);
+}
+
+.datos_alumno .stat-box:nth-child(3) { /* Justificados */
+    background-color: rgba(255, 193, 7, 0.3);
+}
+
+.datos_alumno .stat-box:nth-child(4) { /* Total */
+    background-color: rgba(33, 150, 243, 0.3);
+    border-radius: 0 1rem 1rem 0;
+}
+
+/* Estado del botón deshabilitado */
+.buscar:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Media Queries para responsive */
+@media (max-width: 768px) {
+    .registro {
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+    
+    .input-fecha-r {
+        width: 100%;
+        max-width: 25rem;
+        height: 3.5rem;
+        font-size: 18px;
+    }
+    
+    .datos_alumno {
+        width: 100%;
+        max-width: 40rem;
+        height: auto;
+        flex-wrap: wrap;
+        border-radius: 1rem;
+        padding: 0.5rem;
+    }
+    
+    .stat-box {
+        width: 50%;
+        padding: 0.5rem;
+        box-sizing: border-box;
+    }
+    
+    .datos_alumno .stat-box:nth-child(1),
+    .datos_alumno .stat-box:nth-child(2),
+    .datos_alumno .stat-box:nth-child(3),
+    .datos_alumno .stat-box:nth-child(4) {
+        border-radius: 0.5rem;
+        margin: 0.2rem;
+    }
+    
+    .buscar {
+        width: 8rem;
+        height: 3.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .registro {
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .registro label {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .registro label i {
+        font-size: 24px;
+    }
+    
+    .input-fecha-r {
+        height: 3rem;
+        font-size: 16px;
+    }
+    
+    .stat-label {
+        font-size: 10px;
+    }
+    
+    .stat-value {
+        font-size: 14px;
+    }
+    
+    .buscar {
+        width: 100%;
+        max-width: 10rem;
+        height: 3rem;
+    }
+}
+
+@media (max-height: 600px) {
+    .registro {
+        justify-content: flex-start;
+        padding-top: 1rem;
+    }
+}
