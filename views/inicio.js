@@ -1,4 +1,3 @@
-import { cargarProfesorDesdeDB } from "../modulos/funciones_inicio.js";
 
 function desing_inicio() {
     let section = document.createElement('section');

@@ -1,5 +1,6 @@
 import { cargarSignup } from "./signup.js";
 import { inicio } from "./inicioView.js";
+import { handleLogin, saveSessionData } from "../modulos/funciones_login.js";
 
 function Login() {
     let login = document.createElement('section');
@@ -67,24 +68,8 @@ function Login() {
         const contraseña = inputPassword.value;
 
         try {
-            const response = await fetch('http://localhost:3000/login-profesor', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, contraseña }),
-            });
-
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error || 'Credenciales incorrectas');
-            }
-
-            // Guardar datos de sesión
-            localStorage.setItem('profesorId', data.profesor.id);
-            localStorage.setItem('profesorNombre', data.profesor.nombre);
-            localStorage.setItem('profesorApellido', data.profesor.apellido);
+            const data = await handleLogin(email, contraseña);
+            saveSessionData(data.profesor);
             
             // Redirigir
             document.querySelector("#root").innerHTML = "";
