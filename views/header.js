@@ -7,14 +7,6 @@ function header() {
     let header = document.createElement('header');
     header.className = "header";
 
-    // Logo
-    let logo = document.createElement('div');
-    let img = document.createElement('img');
-    img.src = "views/images/LogoSCL.png";
-    img.className = "logo";
-    logo.appendChild(img);
-    header.appendChild(logo);
-
     // Botón hamburguesa
     const toggleButton = document.createElement('button');
     toggleButton.className = "menu-toggle";
@@ -23,6 +15,15 @@ function header() {
         sidebar.classList.toggle('active');
     });
     header.appendChild(toggleButton);
+
+    // Logo
+    let logo = document.createElement('div');
+    let img = document.createElement('img');
+    img.src = "views/images/LogoSCL.png";
+    img.className = "logo";
+    logo.appendChild(img);
+    header.appendChild(logo);
+
 
     // Sidebar (menú lateral)
     let sidebar = document.createElement('div');
