@@ -15,54 +15,50 @@ function header() {
     logo.appendChild(img);
     header.appendChild(logo);
 
-    // Menú principal
-    let menu = document.createElement('div');
-    menu.className = "menu";
-    
+    // Botón hamburguesa
+    const toggleButton = document.createElement('button');
+    toggleButton.className = "menu-toggle";
+    toggleButton.innerHTML = "☰";
+    toggleButton.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+    });
+    header.appendChild(toggleButton);
+
+    // Sidebar (menú lateral)
+    let sidebar = document.createElement('div');
+    sidebar.className = "sidebar";
+
     let buttonInicio = document.createElement('button');
     buttonInicio.textContent = "Inicio";
     buttonInicio.addEventListener('click', () => {
-        const contenido = document.querySelector('.contenido');
-        if (contenido) {
-            contenido.innerHTML = '';
-            contenido.appendChild(desing_inicio());
-        }
+        document.querySelector('.contenido').innerHTML = '';
+        document.querySelector('.contenido').appendChild(desing_inicio());
+        sidebar.classList.remove('active');
     });
-    
+
     let buttonLista = document.createElement('button');
     buttonLista.textContent = "Lista";
     buttonLista.addEventListener('click', () => {
-        const contenido = document.querySelector('.contenido');
-        if (contenido) {
-            contenido.innerHTML = '';
-            contenido.appendChild(Lista());
-        }
+        document.querySelector('.contenido').innerHTML = '';
+        document.querySelector('.contenido').appendChild(Lista());
+        sidebar.classList.remove('active');
     });
-    
+
     let buttonRegistro = document.createElement('button');
     buttonRegistro.textContent = "Registro";
     buttonRegistro.addEventListener('click', () => {
-        const contenido = document.querySelector('.contenido');
-        if (contenido) {
-            contenido.innerHTML = '';
-            contenido.appendChild(Registro());
-        }
+        document.querySelector('.contenido').innerHTML = '';
+        document.querySelector('.contenido').appendChild(Registro());
+        sidebar.classList.remove('active');
     });
-    
-    menu.appendChild(buttonInicio);
-    menu.appendChild(buttonLista);
-    menu.appendChild(buttonRegistro);
-    header.appendChild(menu);
 
-    // Contenedor de usuario/logout
-    let userContainer = document.createElement('div');
-    userContainer.className = "user-container";
+    sidebar.appendChild(buttonInicio);
+    sidebar.appendChild(buttonLista);
+    sidebar.appendChild(buttonRegistro);
 
-    // Verificar si el usuario está logueado
     const isLoggedIn = localStorage.getItem('profesorId');
 
     if (isLoggedIn) {
-        // Mostrar botón de logout si está logueado
         const logoutBtn = document.createElement('button');
         logoutBtn.textContent = "Cerrar sesión";
         logoutBtn.className = "logout-btn";
@@ -70,11 +66,10 @@ function header() {
             localStorage.removeItem('profesorId');
             localStorage.removeItem('profesorNombre');
             localStorage.removeItem('profesorApellido');
-            window.location.reload(); // Recargar para actualizar la UI
+            window.location.reload();
         });
-        userContainer.appendChild(logoutBtn);
+        sidebar.appendChild(logoutBtn);
     } else {
-        // Mostrar botón de login si no está logueado
         const loginBtn = document.createElement('button');
         loginBtn.textContent = "Login";
         loginBtn.className = "login-btn";
@@ -85,11 +80,10 @@ function header() {
                 root.appendChild(Login());
             }
         });
-        userContainer.appendChild(loginBtn);
+        sidebar.appendChild(loginBtn);
     }
 
-    header.appendChild(userContainer);
-
+    document.body.appendChild(sidebar);
     return header;
 }
 
