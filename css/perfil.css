@@ -1,158 +1,155 @@
 .perfil {
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 .perfil-container {
-
-    height: 50rem;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  height: 50rem;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .perfil-header {
-    text-align: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #e1e1e1;
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e1e1e1;
 }
 
 .perfil-header h2 {
-    margin: 0;
-    color: #333;
-    font-size: 1.8rem;
+  margin: 0;
+  color: #333;
+  font-size: 1.8rem;
 }
 
 .perfil-content {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 30px;
-    margin-bottom: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-bottom: 30px;
 }
 
 .perfil-foto {
-    flex: 1;
-    min-width: 200px;
-    text-align: center;
+  flex: 1;
+  min-width: 200px;
+  text-align: center;
 }
 
 .perfil-foto img {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid var(--azul-oscuro);
-    margin-bottom: 15px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--azul-oscuro);
+  margin-bottom: 15px;
 }
 
 .btn-cambiar-foto {
-    background-color: var(--azul-oscuro);
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1.2rem;
-    transition: background-color 0.3s;
+  background-color: var(--azul-oscuro);
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: background-color 0.3s;
 }
 
-
-
 .perfil-datos {
-    flex: 2;
-    min-width: 300px;
+  flex: 2;
+  min-width: 300px;
 }
 
 .perfil-datos h3 {
-    margin-top: 0;
-    color: #333;
-    font-size: 2rem;
+  margin-top: 0;
+  color: #333;
+  font-size: 2rem;
 }
 
 .perfil-datos p {
-    margin: 10px 0;
-    color: #555;
-    font-size: 1.3rem;
+  margin: 10px 0;
+  color: #555;
+  font-size: 1.3rem;
 }
 
 .btn-editar {
-    background-color: #2196F3;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 15px;
-    font-size: 1.2rem;
-    transition: background-color 0.3s;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 15px;
+  font-size: 1.2rem;
+  transition: background-color 0.3s;
 }
 
 .btn-editar:hover {
-    background-color: #0b7dda;
+  background-color: #0b7dda;
 }
 
 .perfil-estadisticas {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
 }
 
 .perfil-estadisticas h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #333;
-    font-size: 1.3rem;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 1.3rem;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
 }
 
 .estadisticas-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
 }
 
 .estadistica-item {
-    text-align: center;
-    padding: 15px;
-    background-color: #f5f5f5;
-    border-radius: 5px;
+  text-align: center;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 5px;
 }
 
 .estadistica-valor {
-    display: block;
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: var(--azul-oscuro);
-    margin-bottom: 5px;
+  display: block;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--azul-oscuro);
+  margin-bottom: 5px;
 }
 
 .estadistica-label {
-    font-size: 1.2rem;
-    color: #666;
+  font-size: 1.2rem;
+  color: #666;
 }
 
 @media (max-width: 768px) {
-    .perfil-content {
-        flex-direction: column;
-    }
-    
-    .perfil-foto {
-        margin-bottom: 20px;
-    }
-    
-    .estadisticas-grid {
-        grid-template-columns: 1fr 1fr;
-    }
+  .perfil-content {
+    flex-direction: column;
+  }
+
+  .perfil-foto {
+    margin-bottom: 20px;
+  }
+
+  .estadisticas-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 @media (max-width: 480px) {
-    .estadisticas-grid {
-        grid-template-columns: 1fr;
-    }
+  .estadisticas-grid {
+    grid-template-columns: 1fr;
+  }
 }

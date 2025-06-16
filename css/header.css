@@ -1,272 +1,215 @@
 .header {
-    width: 100%;
-    height: 6rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 2rem;
-    background: linear-gradient(to right, var(--fondo-header), var(--fondo-header-secundario));
-    backdrop-filter: blur(5px);
-    position: relative;
-    z-index: 100;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    gap: 145rem;
+  width: 100%;
+  max-width: 100vw;
+  height: 6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  background: linear-gradient(
+    to right,
+    var(--fondo-header),
+    var(--fondo-header-secundario)
+  );
+  backdrop-filter: blur(5px);
+  position: relative;
+  z-index: 100;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  gap: 1rem;
+  box-sizing: border-box;
 }
 
 .logo {
-    width: 16rem;
-    height: 6rem;
-    display: flex;
-    align-items: center;
+  width: 16rem;
+  height: 6rem;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .logo img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
+/* Menú principal para desktop */
 .menu {
-    max-width: 60rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
 }
 
 .menu button {
-    all: unset;
-    padding: 0.8rem 1.5rem;
-    border-radius: 1rem;
-    font-family: "Boldonse", system-ui;
-    color: var(--blanco);
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.05);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    backdrop-filter: blur(3px);
+  all: unset;
+  padding: 0.8rem 1.5rem;
+  border-radius: 1rem;
+  font-family: "Boldonse", system-ui;
+  color: var(--blanco);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(3px);
+  white-space: nowrap;
 }
 
 .menu button:hover {
-    background: var(--rosa-claro);
-    color: var(--fondo-header);
-    transform: translateY(-2px) scale(1.02);
+  background: var(--rosa-claro);
+  color: var(--fondo-header);
+  transform: translateY(-2px) scale(1.02);
 }
 
 .logout-btn {
-    all: unset;
-    padding: 0.8rem 1.5rem;
-    border-radius: 1rem;
-    font-family: "Boldonse", system-ui;
-    background-color: var(--piel-claro);
-    color: var(--cafe-oscuro);
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    
+  all: unset;
+  padding: 0.8rem 1.5rem;
+  border-radius: 1rem;
+  font-family: "Boldonse", system-ui;
+  background-color: var(--piel-claro);
+  color: var(--cafe-oscuro);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
 }
 
 .logout-btn:hover {
-    background-color: var(--cafe-oscuro);
-    color: var(--blanco);
-    transform: translateY(-2px) scale(1.03);
+  background-color: var(--cafe-oscuro);
+  color: var(--blanco);
+  transform: translateY(-2px) scale(1.03);
 }
 
+/* Sidebar (menú lateral) */
 .sidebar {
-    position: fixed;
-    top: 60px;
-    right: -260px;
-    width: 250px;
-    height: 100vh;
-    background: linear-gradient(to bottom, var(--fondo-header), var(--fondo-header-secundario));
-    backdrop-filter: blur(6px);
-    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.25);
-    padding: 2rem 1.2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    transition: right 0.4s ease;
-    z-index: 999;
+  position: fixed;
+  top: 6rem;
+  right: -260px;
+  width: 250px;
+  height: calc(100vh - 6rem);
+  background: linear-gradient(
+    to bottom,
+    var(--fondo-header),
+    var(--fondo-header-secundario)
+  );
+  backdrop-filter: blur(6px);
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.25);
+  padding: 2rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  transition: right 0.4s ease;
+  z-index: 999;
+  overflow-y: auto;
 }
 
 .sidebar.active {
-    left: 0;
+  right: 0;
 }
 
 .sidebar button {
-    all: unset;
-    padding: 1rem;
-    border-radius: 1rem;
-    font-family: "Boldonse", system-ui;
-    color: var(--blanco);
-    background: rgba(255, 255, 255, 0.08);
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  all: unset;
+  padding: 1rem;
+  border-radius: 1rem;
+  font-family: "Boldonse", system-ui;
+  color: var(--blanco);
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .sidebar button:hover {
-    background-color: var(--rosa-claro);
-    color: var(--fondo-header);
-    transform: scale(1.03);
+  background-color: var(--rosa-claro);
+  color: var(--fondo-header);
+  transform: scale(1.03);
 }
 
-.logout-btn, .login-btn {
-    background-color: var(--piel-claro);
-    color: var(--cafe-oscuro);
+.sidebar .logout-btn,
+.sidebar .login-btn {
+  background-color: var(--piel-claro);
+  color: var(--cafe-oscuro);
 }
 
-.logout-btn:hover, .login-btn:hover {
-    background-color: var(--cafe-oscuro);
-    color: var(--blanco);
+.sidebar .logout-btn:hover,
+.sidebar .login-btn:hover {
+  background-color: var(--cafe-oscuro);
+  color: var(--blanco);
 }
 
+/* Botón de menú hamburguesa */
 .menu-toggle {
-    width: 50px;
-    height: 50px;
-    margin-left: auto;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-    border-radius: 10px;
-    
+  width: 50px;
+  height: 50px;
+  margin-left: auto;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  border-radius: 10px;
+  display: none; /* Oculto por defecto (solo visible en móvil) */
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+  font-size: 1.5rem;
 }
 
 .menu-toggle:hover {
-    transform: scale(1.1);
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.2);
 }
 
-
-@media (max-width: 1200px) {
-    .menu {
-        gap: 1.5rem;
-    }
-
-    .menu button {
-        width: 7rem;
-    }
-
-    .logout-btn {
-        width: 12rem;
-    }
-}
-
-@media (max-width: 992px) {
-    .header {
-        height: 5rem;
-        padding: 0 1.5rem;
-    }
-
-    .logo {
-        width: 14rem;
-        height: 5rem;
-    }
-
-    .menu {
-        gap: 1rem;
-    }
-
-    .menu button {
-        width: 6.5rem;
-        font-size: 11px;
-    }
-
-    .logout-btn {
-        width: 11rem;
-        height: 3.5rem;
-        font-size: 11px;
-    }
-}
-
+/* Media queries para responsive */
 @media (max-width: 768px) {
-    .header {
-        flex-direction: row;
-        height: 4.5rem;
-        padding: 0 1rem;
-        justify-content: space-between;
-        align-items: center;
-    }
+  .menu {
+    display: none; /* Ocultamos el menú principal en móvil */
+  }
 
-    .logo {
-        width: 9rem;
-        height: 3.2rem;
-    }
+  .menu-toggle {
+    display: flex; /* Mostramos el botón hamburguesa en móvil */
+  }
+}
 
-    .menu {
-        display: none;
-    }
+@media (min-width: 769px) {
+  .sidebar {
+    display: none; /* Ocultamos el sidebar en desktop */
+  }
 
-    .menu.active {
-        display: flex;
-        flex-direction: column;
-        position: fixed;
-        top: 4.5rem;
-        left: 0;
-        width: 100%;
-        background-color: var(--fondo-header);
-        padding: 1rem;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        z-index: 99;
-    }
-
-    .menu button {
-        width: 100%;
-        height: 3.5rem;
-        justify-content: center;
-        padding: 0 1rem;
-        margin: 0.3rem 0;
-        font-size: 1.1rem;
-        border-radius: 0.8rem;
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .logout-btn {
-        width: 100%;
-        height: 3.8rem;
-        margin: 0.8rem 0 0.5rem;
-        font-size: 1.1rem;
-        justify-content: center;
-        text-align: center;
-        display: flex;
-        align-items: center;
-    }
-
-    .menu-toggle {
-        display: block;
-    }
-
-    .user-container {
-        display: none !important;
-    }
+  .sidebar.active {
+    display: none; /* Aseguramos que no se muestre aunque tenga la clase active */
+  }
 }
 
 @media (max-width: 480px) {
-    .header {
-        padding: 0.8rem;
-    }
+  .header {
+    padding: 0 0.8rem;
+  }
 
-    .logo {
-        width: 10rem;
-        height: 3.5rem;
-    }
+  .logo {
+    width: 8rem;
+    height: 3rem;
+  }
 
-    .menu {
-        gap: 0.5rem;
-    }
+  .menu.active {
+    top: 4rem;
+  }
 
-    .menu button {
-        min-width: 5rem;
-        height: 2.5rem;
-        font-size: 10px;
-        padding: 0 0.5rem;
-    }
+  .menu button {
+    height: 3rem;
+    font-size: 1rem;
+  }
 
-    .logout-btn {
-        width: 8rem;
-        height: 2.8rem;
-        font-size: 10px;
-    }
+  .logout-btn {
+    height: 3.2rem;
+    font-size: 1rem;
+  }
+
+  .menu-toggle {
+    width: 40px;
+    height: 40px;
+  }
 }
