@@ -1,23 +1,29 @@
 import { inicio } from "./views/inicioView.js";
 import { Login } from "./views/login.js";
+import { identify } from "./views/identify.js";
+
+const root = document.querySelector("#root");
 
 function cargarAplicacion() {
-    const root = document.querySelector("#root");
-    root.innerHTML = "";
+  root.innerHTML = "";
 
-    if (localStorage.getItem('profesorId')) {
-        root.appendChild(inicio());
-    } else {
+  if (localStorage.getItem("profesorId")) {
+    root.appendChild(inicio());
+  } else {
+    // Mostrar pantalla de identify antes del login
+    root.appendChild(
+      identify(() => {
+        root.innerHTML = "";
         root.appendChild(Login());
-    }
+      })
+    );
+  }
 }
 
-// Iniciar la aplicación al cargar
-document.addEventListener('DOMContentLoaded', cargarAplicacion);
+document.addEventListener("DOMContentLoaded", cargarAplicacion);
 
-// Escuchar cambios en el localStorage para actualizar la UI
-window.addEventListener('storage', (event) => {
-    if (event.key === 'profesorId') {
-        cargarAplicacion();
-    }
+window.addEventListener("storage", (event) => {
+  if (event.key === "profesorId") {
+    cargarAplicacion();
+  }
 });

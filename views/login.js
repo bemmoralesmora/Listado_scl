@@ -1,103 +1,123 @@
 import { cargarSignup } from "./signup.js";
 import { inicio } from "./inicioView.js";
-import { handleLogin, saveSessionData } from "../modulos/funciones_login.js";
+import { handleLogin } from "../modulos/funciones_login.js";
 
 function Login() {
-    let login = document.createElement('section');
-    login.className = "login";
+  const login = document.createElement("section");
+  login.className = "login";
 
-    // Logo
-    const logoDiv = document.createElement('div');
-    const logoImg = document.createElement('img');
-    logoImg.src = "views/images/LogoSCL.png";
-    logoImg.alt = "Logo";
-    logoDiv.appendChild(logoImg);
+  // Logo
+  const logoDiv = document.createElement("div");
+  const logoImg = document.createElement("img");
+  logoImg.src = "assets/images/LogoSCL.png";
+  logoImg.alt = "Logo";
+  logoDiv.appendChild(logoImg);
 
-    const logoLogin = document.createElement('div');
-    logoLogin.className = "logo-login";
-    logoLogin.appendChild(logoDiv);
-    login.appendChild(logoLogin);
+  const logoLogin = document.createElement("div");
+  logoLogin.className = "logo-login";
+  logoLogin.appendChild(logoDiv);
+  login.appendChild(logoLogin);
 
-    // Formulario
-    let form = document.createElement('form');
-    form.className = "form";
+  // Formulario
+  const form = document.createElement("form");
+  form.className = "form";
 
-    let inputEmail = document.createElement('input');
-    inputEmail.type = "email";
-    inputEmail.id = "email";
-    inputEmail.placeholder = "Correo electrónico";
-    inputEmail.required = true;
+  const inputEmail = document.createElement("input");
+  inputEmail.type = "email";
+  inputEmail.id = "email";
+  inputEmail.placeholder = "Correo electrónico";
+  inputEmail.required = true;
 
-    let inputPassword = document.createElement('input');
-    inputPassword.type = "password";
-    inputPassword.id = "contraseña";
-    inputPassword.placeholder = "Contraseña";
-    inputPassword.required = true;
+  const inputPassword = document.createElement("input");
+  inputPassword.type = "password";
+  inputPassword.id = "password";
+  inputPassword.placeholder = "Contraseña";
+  inputPassword.required = true;
 
-    let botonLogin = document.createElement('button');
-    botonLogin.type = "submit";
-    botonLogin.textContent = "Iniciar Sesión >";
-    botonLogin.className = "login-btn";
+  const botonLogin = document.createElement("button");
+  botonLogin.type = "submit";
+  botonLogin.textContent = "Iniciar Sesión >";
+  botonLogin.className = "login-btn";
 
-    form.appendChild(inputEmail);
-    form.appendChild(inputPassword);
-    form.appendChild(botonLogin);
-    login.appendChild(form);
+  // Mensaje de error
+  const errorElement = document.createElement("p");
+  errorElement.className = "error-message";
+  errorElement.style.color = "red";
+  errorElement.style.minHeight = "20px";
+  errorElement.style.visibility = "hidden";
 
-    // Enlace Sign Up
-    const signupText = document.createElement('p');
-    const signupLink = document.createElement('a');
-    signupLink.href = "#";
-    signupLink.textContent = "Sign Up";
-    signupText.appendChild(document.createTextNode("¿No tienes cuenta? "));
-    signupText.appendChild(signupLink);
+  form.appendChild(inputEmail);
+  form.appendChild(inputPassword);
+  form.appendChild(errorElement); // Añadido antes del botón
+  form.appendChild(botonLogin);
+  login.appendChild(form);
 
-    const crearCuenta = document.createElement('div');
-    crearCuenta.className = "crear";
-    crearCuenta.appendChild(signupText);
-    login.appendChild(crearCuenta);
+  // Enlace Sign Up
+  const signupText = document.createElement("p");
+  const signupLink = document.createElement("a");
+  signupLink.href = "#";
+  signupLink.textContent = "Sign Up";
+  signupText.appendChild(document.createTextNode("¿No tienes cuenta? "));
+  signupText.appendChild(signupLink);
 
-    // Manejador de login
-    form.addEventListener('submit', async function(event) {
-        event.preventDefault();
-        
-        botonLogin.disabled = true;
-        botonLogin.textContent = "Verificando...";
-        
-        const email = inputEmail.value;
-        const contraseña = inputPassword.value;
+  const crearCuenta = document.createElement("div");
+  crearCuenta.className = "crear";
+  crearCuenta.appendChild(signupText);
+  login.appendChild(crearCuenta);
 
-        try {
-            const data = await handleLogin(email, contraseña);
-            saveSessionData(data.profesor);
-            
-            // Redirigir
-            document.querySelector("#root").innerHTML = "";
-            document.querySelector("#root").appendChild(inicio());
-            
-        } catch (error) {
-            const errorElement = document.createElement('p');
-            errorElement.className = 'error-message';
-            errorElement.textContent = error.message;
-            
-            const existingError = form.querySelector('.error-message');
-            if (existingError) form.removeChild(existingError);
-            
-            form.appendChild(errorElement);
-        } finally {
-            botonLogin.disabled = false;
-            botonLogin.textContent = "Iniciar Sesión >";
-        }
-    });
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
 
-    // Manejador Sign Up
-    signupLink.addEventListener('click', function(event) {
-        event.preventDefault();
-        document.querySelector("#root").innerHTML = "";
-        document.querySelector("#root").appendChild(cargarSignup());
-    });
+    // Limpiar errores anteriores
+    errorElement.textContent = "";
+    errorElement.style.display = "none";
 
-    return login;
+    // Deshabilitar botón durante la petición
+    botonLogin.disabled = true;
+    botonLogin.textContent = "Verificando...";
+
+    try {
+      const email = inputEmail.value.trim();
+      const password = inputPassword.value.trim();
+
+      // Validación frontend
+      if (!email || !password) {
+        throw new Error("Por favor completa todos los campos");
+      }
+
+      // Mostrar en consola lo que se enviará
+      console.log("Enviando:", { email, password });
+
+      const data = await handleLogin(email, password);
+
+      // Redirigir después de login exitoso
+      document.querySelector("#root").innerHTML = "";
+      document.querySelector("#root").appendChild(inicio());
+    } catch (error) {
+      console.error("Error en login:", error);
+      errorElement.textContent = error.message;
+      errorElement.style.display = "block";
+
+      // Enfocar el campo con error
+      if (error.message.includes("email")) {
+        inputEmail.focus();
+      } else {
+        inputPassword.focus();
+      }
+    } finally {
+      botonLogin.disabled = false;
+      botonLogin.textContent = "Iniciar Sesión >";
+    }
+  });
+
+  // Manejador Sign Up
+  signupLink.addEventListener("click", function (event) {
+    event.preventDefault();
+    document.querySelector("#root").innerHTML = "";
+    document.querySelector("#root").appendChild(cargarSignup());
+  });
+
+  return login;
 }
 
 export { Login };
