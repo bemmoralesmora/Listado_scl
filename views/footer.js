@@ -17,7 +17,7 @@ function footer() {
 
   let nombre = document.createElement("h1");
   nombre.className = "nombre-f";
-  nombre.textContent = "bemorales@scl.edu.gt";
+  nombre.textContent = "bemorales@scl.edu.gt--hdvillatoro@scl.edu.gt";
   contenido_f.appendChild(nombre);
 
   let linea_baja = document.createElement("div");
