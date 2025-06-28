@@ -79,7 +79,7 @@
   width: auto;
   height: 10rem;
   background-color: var(--negro);
-  opacity: 0.5;
+  opacity: 0.7;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -90,6 +90,20 @@
   font-size: 12px;
   font-family: "Boldonse", system-ui;
   color: var(--blanco);
+}
+
+.recuperar-btn {
+  width: 20rem;
+  height: 4rem;
+  background-color: var(--azul-oscuro);
+  border-radius: 1rem;
+  font-family: "Boldonse", system-ui;
+  font-size: 10px;
+  color: white;
+}
+
+.recuperar-btn:hover {
+  background-color: #3a5a8a;
 }
 
 /* Media Queries para responsive */

@@ -5,6 +5,8 @@ import {
   agregarAlumno,
   obtenerAlumnosBasicosPorGrado,
   cargarAsistenciaGuardada,
+  abrirModalUniforme,
+  abrirModalComentario,
 } from "../modulos/funciones_lista.js";
 
 function Lista() {
@@ -28,18 +30,11 @@ function Lista() {
   create_datos.appendChild(fecha_input);
   create_datos.appendChild(mostrar_fecha);
 
-  // Input para nombre de alumno
-  let agregar_input = document.createElement("input");
-  agregar_input.type = "text";
-  agregar_input.className = "agregar_input";
-  agregar_input.placeholder = "Ingresa alumno (Nombre Apellido)";
-  create_datos.appendChild(agregar_input);
-
-  // Botón para agregar alumno
-  let agregar = document.createElement("button");
-  agregar.textContent = "+";
-  agregar.className = "agregar";
-  create_datos.appendChild(agregar);
+  // Botón para agregar alumno (reemplaza al input)
+  let agregarBtn = document.createElement("button");
+  agregarBtn.textContent = "Agregar Nuevo Alumno";
+  agregarBtn.className = "agregar-btn";
+  create_datos.appendChild(agregarBtn);
 
   // Selector de grados
   let gradoSelect = document.createElement("select");
@@ -56,136 +51,40 @@ function Lista() {
   modalContainer.id = "modal-container";
   document.body.appendChild(modalContainer);
 
-  // Función para crear alumnos con botones
-  function crearElementoAlumno(alumno) {
-    const alumnoItem = document.createElement("div");
-    alumnoItem.className = "alumno-item";
-    alumnoItem.dataset.idAlumno = alumno.id_alumno;
+  // Crear modal para agregar alumno
+  const modalAgregarAlumno = document.createElement("div");
+  modalAgregarAlumno.className = "modal";
+  modalAgregarAlumno.style.display = "none";
+  modalAgregarAlumno.innerHTML = `
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h2>Agregar Nuevo Alumno</h2>
+      <div class="modal-body">
+        <!-- Aquí irá el formulario para agregar alumno -->
+        <p>Formulario para agregar nuevo alumno</p>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modalAgregarAlumno);
 
-    const nombreElement = document.createElement("h1");
-    nombreElement.textContent = `${alumno.nombre} ${alumno.apellido}`;
+  // Manejador para abrir modal
+  agregarBtn.addEventListener("click", function () {
+    modalAgregarAlumno.style.display = "block";
+  });
 
-    const contInputs = document.createElement("div");
-    contInputs.className = "cont-inputs";
-
-    // Selector de estado de asistencia
-    const estadoSelect = document.createElement("select");
-    estadoSelect.className = "estado-asistencia";
-    estadoSelect.dataset.idAlumno = alumno.id_alumno;
-
-    const opciones = [
-      { value: "presente", text: "Presente" },
-      { value: "ausente", text: "Ausente", selected: true },
-    ];
-
-    opciones.forEach((opcion) => {
-      const optionElement = document.createElement("option");
-      optionElement.value = opcion.value;
-      optionElement.textContent = opcion.text;
-      if (opcion.selected) optionElement.selected = true;
-      estadoSelect.appendChild(optionElement);
+  // Manejador para cerrar modal
+  modalAgregarAlumno
+    .querySelector(".close-modal")
+    .addEventListener("click", function () {
+      modalAgregarAlumno.style.display = "none";
     });
 
-    // Botón uniforme
-    const btnUniforme = crearBoton("uniforme", () =>
-      abrirModalUniforme(alumno)
-    );
-
-    // Botón comentario
-    const btnComentario = crearBoton("coment", () =>
-      abrirModalComentario(alumno)
-    );
-
-    // Botón eliminar
-    const btnEliminar = crearBoton(
-      "✕",
-      () => abrirModalEliminar(alumno),
-      "btn-x"
-    );
-
-    contInputs.appendChild(estadoSelect);
-    contInputs.appendChild(btnUniforme);
-    contInputs.appendChild(btnComentario);
-    contInputs.appendChild(btnEliminar);
-
-    alumnoItem.appendChild(nombreElement);
-    alumnoItem.appendChild(contInputs);
-
-    return alumnoItem;
-  }
-
-  // Crear botón reutilizable
-  function crearBoton(texto, accion, claseExtra = "") {
-    const btn = document.createElement("button");
-    btn.textContent = texto;
-    btn.className = `btn-modal ${claseExtra}`;
-    btn.onclick = accion;
-    return btn;
-  }
-
-  // Modal base
-  function crearModalBase(titulo, contenidoHTML) {
-    modalContainer.innerHTML = "";
-
-    const fondo = document.createElement("div");
-    fondo.className = "modal";
-
-    const contenido = document.createElement("div");
-    contenido.className = "modal-content";
-    contenido.innerHTML = `<h3>${titulo}</h3>${contenidoHTML}`;
-
-    const btnCerrar = document.createElement("button");
-    btnCerrar.textContent = "Cerrar";
-    btnCerrar.onclick = () => (modalContainer.innerHTML = "");
-
-    contenido.appendChild(btnCerrar);
-    fondo.appendChild(contenido);
-    modalContainer.appendChild(fondo);
-  }
-
-  // Modales específicos
-  function abrirModalUniforme(alumno) {
-    const html = `
-      <label><input type="checkbox"> camisa</label><br>
-      <label><input type="checkbox"> pantalón</label><br>
-      <label><input type="checkbox"> zapatos</label><br>
-      <label><input type="checkbox" id="todo"> marcar todo</label>
-    `;
-    crearModalBase("Uniforme de " + alumno.nombre, html);
-  }
-
-  function abrirModalComentario(alumno) {
-    const alumnoItem = document.querySelector(
-      `.alumno-item[data-id-alumno="${alumno.id_alumno}"]`
-    );
-    const comentarioActual = alumnoItem.dataset.comentario || "";
-
-    const html = `
-      <textarea id="comentario-modal" placeholder="Escribe tu comentario aquí" 
-                style="width:90%; height:80px;">${comentarioActual}</textarea><br>
-      <button id="guardar-comentario">Guardar</button>
-    `;
-
-    crearModalBase("Comentario para " + alumno.nombre, html);
-
-    document
-      .getElementById("guardar-comentario")
-      .addEventListener("click", () => {
-        const nuevoComentario =
-          document.getElementById("comentario-modal").value;
-        alumnoItem.dataset.comentario = nuevoComentario;
-        modalContainer.innerHTML = "";
-      });
-  }
-
-  function abrirModalEliminar(alumno) {
-    const html = `
-      <p>¿Desea eliminar a este alumno?</p>
-      <input id="texto-eliminar" type="password" placeholder="verificar con pass"><br>
-      <button>ok</button>
-    `;
-    crearModalBase("Eliminar a " + alumno.nombre, html);
-  }
+  // Cerrar modal al hacer clic fuera del contenido
+  modalAgregarAlumno.addEventListener("click", function (event) {
+    if (event.target === modalAgregarAlumno) {
+      modalAgregarAlumno.style.display = "none";
+    }
+  });
 
   // Evento para cambio de grado
   gradoSelect.addEventListener("change", async function () {
@@ -206,7 +105,54 @@ function Lista() {
         }
 
         alumnos.forEach((alumno) => {
-          datos_lista.appendChild(crearElementoAlumno(alumno));
+          const alumnoItem = document.createElement("div");
+          alumnoItem.className = "alumno-item";
+          alumnoItem.dataset.idAlumno = alumno.id_alumno;
+
+          const nombreElement = document.createElement("h1");
+          nombreElement.textContent = `${alumno.nombre} ${alumno.apellido}`;
+
+          const contInputs = document.createElement("div");
+          contInputs.className = "cont-inputs";
+
+          const estadoSelect = document.createElement("select");
+          estadoSelect.className = "estado-asistencia";
+          estadoSelect.dataset.idAlumno = alumno.id_alumno;
+
+          const opciones = [
+            { value: "presente", text: "Presente" },
+            { value: "ausente", text: "Ausente", selected: true },
+            { value: "justificado", text: "Justificado" },
+          ];
+
+          opciones.forEach((opcion) => {
+            const optionElement = document.createElement("option");
+            optionElement.value = opcion.value;
+            optionElement.textContent = opcion.text;
+            if (opcion.selected) optionElement.selected = true;
+            estadoSelect.appendChild(optionElement);
+          });
+
+          // Botón uniforme
+          const btnUniforme = document.createElement("button");
+          btnUniforme.textContent = "Uniforme";
+          btnUniforme.className = "btn-modal";
+          btnUniforme.onclick = () => abrirModalUniforme(alumno);
+
+          // Botón comentario
+          const btnComentario = document.createElement("button");
+          btnComentario.textContent = "Coment";
+          btnComentario.className = "btn-modal";
+          btnComentario.onclick = () => abrirModalComentario(alumno);
+
+          contInputs.appendChild(estadoSelect);
+          contInputs.appendChild(btnUniforme);
+          contInputs.appendChild(btnComentario);
+
+          alumnoItem.appendChild(nombreElement);
+          alumnoItem.appendChild(contInputs);
+
+          datos_lista.appendChild(alumnoItem);
         });
 
         // Si hay fecha seleccionada, cargar asistencia
@@ -223,8 +169,20 @@ function Lista() {
               if (alumnoItem) {
                 const select = alumnoItem.querySelector(".estado-asistencia");
                 if (select) select.value = asistencia.estado;
+
                 if (asistencia.comentario) {
                   alumnoItem.dataset.comentario = asistencia.comentario;
+                }
+
+                if (asistencia.zapatos !== undefined) {
+                  alumnoItem.dataset.uniforme = JSON.stringify({
+                    zapatos: asistencia.zapatos,
+                    playera: asistencia.playera,
+                    pantalon: asistencia.pantalon,
+                    sueter: asistencia.sueter,
+                    corte_pelo: asistencia.corte_pelo,
+                    observacion: asistencia.observacion || "",
+                  });
                 }
               }
             });
@@ -238,7 +196,7 @@ function Lista() {
     }
   });
 
-  // Evento único para cambio de fecha
+  // Evento para cambio de fecha
   fecha_input.addEventListener("change", async function () {
     mostrar_fecha.textContent = this.value
       ? "Fecha: " + this.value
@@ -258,8 +216,20 @@ function Lista() {
             if (alumnoItem) {
               const select = alumnoItem.querySelector(".estado-asistencia");
               if (select) select.value = asistencia.estado;
+
               if (asistencia.comentario) {
                 alumnoItem.dataset.comentario = asistencia.comentario;
+              }
+
+              if (asistencia.zapatos !== undefined) {
+                alumnoItem.dataset.uniforme = JSON.stringify({
+                  zapatos: asistencia.zapatos,
+                  playera: asistencia.playera,
+                  pantalon: asistencia.pantalon,
+                  sueter: asistencia.sueter,
+                  corte_pelo: asistencia.corte_pelo,
+                  observacion: asistencia.observacion || "",
+                });
               }
             }
           });
@@ -272,6 +242,7 @@ function Lista() {
 
   create_datos.appendChild(gradoSelect);
 
+  // Botón para guardar asistencia
   let agregarAsistencia = document.createElement("button");
   agregarAsistencia.textContent = "Guardar Asistencia";
   agregarAsistencia.className = "agregarAsistencia";
@@ -305,41 +276,6 @@ function Lista() {
   });
 
   create_datos.appendChild(agregarAsistencia);
-
-  // Manejador para agregar alumno
-  agregar.addEventListener("click", async () => {
-    const nombreCompleto = agregar_input.value.trim();
-    const gradoSeleccionado = gradoSelect.value;
-    const fechaSeleccionada = fecha_input.value;
-
-    if (!nombreCompleto) {
-      alert("Por favor ingresa el nombre completo del alumno");
-      return;
-    }
-
-    if (!gradoSeleccionado) {
-      alert("Por favor selecciona un grado válido");
-      return;
-    }
-
-    try {
-      await agregarAlumno(nombreCompleto, gradoSeleccionado);
-
-      if (fechaSeleccionada) {
-        await cargarAlumnosPorGradoYFecha(
-          datos_lista,
-          gradoSeleccionado,
-          fechaSeleccionada
-        );
-      } else {
-        agregar_input.value = "";
-        // Refrescar lista
-        gradoSelect.dispatchEvent(new Event("change"));
-      }
-    } catch (error) {
-      alert(`Error: ${error.message}`);
-    }
-  });
 
   // Cargar grados disponibles
   cargarGrados(gradoSelect).catch((error) => {

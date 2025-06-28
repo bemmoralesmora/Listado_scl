@@ -42,9 +42,9 @@ export async function cargarAlumnosPorGradoYFecha(
     const gradoData = await gradoResponse.json();
     const idGrado = gradoData.id_grado;
 
-    // 2. Obtener los alumnos del grado
+    // 2. Obtener los alumnos del grado con sus uniformes
     const alumnosResponse = await fetch(
-      `http://localhost:3000/grados/${idGrado}/alumnos`
+      `http://localhost:3000/grados/${idGrado}/alumnos?fecha=${fecha}`
     );
 
     if (!alumnosResponse.ok) {
@@ -67,6 +67,10 @@ export async function cargarAlumnosPorGradoYFecha(
       const alumnoItem = document.createElement("div");
       alumnoItem.className = "alumno-item";
       alumnoItem.dataset.idAlumno = alumno.id_alumno;
+
+      if (alumno.id_asistencia) {
+        alumnoItem.dataset.idAsistencia = alumno.id_asistencia;
+      }
 
       const nombreElement = document.createElement("h1");
       nombreElement.textContent = `${alumno.nombre} ${alumno.apellido}`;
@@ -92,10 +96,45 @@ export async function cargarAlumnosPorGradoYFecha(
         estadoSelect.appendChild(optionElement);
       });
 
+      // Establecer estado si ya existe
+      if (alumno.estado) {
+        estadoSelect.value = alumno.estado;
+      }
+
+      // Botones adicionales
+      const btnUniforme = document.createElement("button");
+      btnUniforme.textContent = "Uniforme";
+      btnUniforme.className = "btn-modal";
+      btnUniforme.onclick = () => abrirModalUniforme(alumno);
+
+      const btnComentario = document.createElement("button");
+      btnComentario.textContent = "Coment";
+      btnComentario.className = "btn-modal";
+      btnComentario.onclick = () => abrirModalComentario(alumno);
+
       contInputs.appendChild(estadoSelect);
+      contInputs.appendChild(btnUniforme);
+      contInputs.appendChild(btnComentario);
 
       alumnoItem.appendChild(nombreElement);
       alumnoItem.appendChild(contInputs);
+
+      // Guardar datos de uniforme si existen
+      if (alumno.zapatos !== undefined) {
+        alumnoItem.dataset.uniforme = JSON.stringify({
+          zapatos: alumno.zapatos,
+          playera: alumno.playera,
+          pantalon: alumno.pantalon,
+          sueter: alumno.sueter,
+          corte_pelo: alumno.corte_pelo,
+          observacion: alumno.observacion || "",
+        });
+      }
+
+      // Guardar comentario si existe
+      if (alumno.comentario) {
+        alumnoItem.dataset.comentario = alumno.comentario;
+      }
 
       contenedor.appendChild(alumnoItem);
     });
@@ -105,43 +144,41 @@ export async function cargarAlumnosPorGradoYFecha(
   }
 }
 
-// Función para guardar la asistencia
 export async function guardarAsistencia(contenedor, nombreGrado, fecha) {
   try {
     // 1. Obtener el ID del grado
     const gradoResponse = await fetch(
       `http://localhost:3000/grados/exacto/${encodeURIComponent(nombreGrado)}`
     );
-
-    if (!gradoResponse.ok) {
-      throw new Error("Error al obtener el grado");
-    }
-
+    if (!gradoResponse.ok) throw new Error("Error al obtener el grado");
     const gradoData = await gradoResponse.json();
-    const idGrado = gradoData.id_grado;
 
-    // 2. Recoger los datos de asistencia
-    const asistencias = [];
+    // 2. Preparar datos
     const alumnosItems = contenedor.querySelectorAll(".alumno-item");
-
-    if (alumnosItems.length === 0) {
+    if (alumnosItems.length === 0)
       throw new Error("No hay alumnos para guardar");
-    }
 
-    alumnosItems.forEach((item) => {
+    const asistencias = [];
+
+    for (const item of alumnosItems) {
       const estadoSelect = item.querySelector(".estado-asistencia");
-      const comentario = item.dataset.comentario || null;
-
-      asistencias.push({
+      const asistencia = {
         id_alumno: parseInt(estadoSelect.dataset.idAlumno),
         fecha: fecha,
         estado: estadoSelect.value,
-        comentario: comentario,
-      });
-    });
+        comentario: item.dataset.comentario || null,
+      };
 
-    // 3. Enviar datos al backend
-    const saveResponse = await fetch("http://localhost:3000/asistencia/batch", {
+      // Añadir datos de uniforme si existen
+      if (item.dataset.uniforme) {
+        asistencia.uniforme = JSON.parse(item.dataset.uniforme);
+      }
+
+      asistencias.push(asistencia);
+    }
+
+    // 3. Enviar al backend
+    const response = await fetch("http://localhost:3000/asistencia/batch", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -149,11 +186,9 @@ export async function guardarAsistencia(contenedor, nombreGrado, fecha) {
       body: JSON.stringify({ asistencias }),
     });
 
-    if (!saveResponse.ok) {
-      throw new Error("Error al guardar asistencia");
-    }
+    if (!response.ok) throw new Error("Error al guardar asistencia");
 
-    return await saveResponse.json();
+    return await response.json();
   } catch (error) {
     console.error("Error al guardar asistencia:", error);
     throw error;
@@ -193,6 +228,7 @@ export async function agregarAlumno(nombreCompleto, gradoSeleccionado) {
   }
 }
 
+// Función para obtener alumnos básicos por grado
 export async function obtenerAlumnosBasicosPorGrado(nombreGrado) {
   try {
     const gradoResponse = await fetch(
@@ -221,7 +257,7 @@ export async function cargarAsistenciaGuardada(grado, fecha) {
         grado
       )}?fecha=${fecha}`
     );
-    if (!response.ok) return null; // No hay asistencia guardada
+    if (!response.ok) return null;
 
     const asistencias = await response.json();
     return asistencias;
@@ -229,4 +265,114 @@ export async function cargarAsistenciaGuardada(grado, fecha) {
     console.error("Error cargando asistencia:", error);
     throw error;
   }
+}
+
+// Función para abrir modal de uniforme (para usar en lista.js)
+export function abrirModalUniforme(alumno) {
+  const alumnoItem = document.querySelector(
+    `.alumno-item[data-id-alumno="${alumno.id_alumno}"]`
+  );
+  const uniformeActual = alumnoItem.dataset.uniforme
+    ? JSON.parse(alumnoItem.dataset.uniforme)
+    : {
+        zapatos: false,
+        playera: false,
+        pantalon: false,
+        sueter: false,
+        corte_pelo: false,
+        observacion: "",
+      };
+
+  const modalContainer = document.getElementById("modal-container");
+  modalContainer.innerHTML = "";
+
+  const fondo = document.createElement("div");
+  fondo.className = "modal";
+
+  const contenido = document.createElement("div");
+  contenido.className = "modal-content";
+  contenido.innerHTML = `
+    <h3>Uniforme de ${alumno.nombre}</h3>
+    <div class="uniforme-checks">
+      <label><input type="checkbox" id="zapatos" ${
+        uniformeActual.zapatos ? "checked" : ""
+      }> Zapatos</label><br>
+      <label><input type="checkbox" id="playera" ${
+        uniformeActual.playera ? "checked" : ""
+      }> Playera</label><br>
+      <label><input type="checkbox" id="pantalon" ${
+        uniformeActual.pantalon ? "checked" : ""
+      }> Pantalón</label><br>
+      <label><input type="checkbox" id="sueter" ${
+        uniformeActual.sueter ? "checked" : ""
+      }> Suéter</label><br>
+      <label><input type="checkbox" id="corte_pelo" ${
+        uniformeActual.corte_pelo ? "checked" : ""
+      }> Corte de pelo</label><br>
+      <textarea id="observacion-uniforme" placeholder="Observaciones">${
+        uniformeActual.observacion || ""
+      }</textarea>
+    </div>
+    <button id="guardar-uniforme">Guardar</button>
+    <button id="cerrar-modal">Cerrar</button>
+  `;
+
+  fondo.appendChild(contenido);
+  modalContainer.appendChild(fondo);
+
+  document.getElementById("guardar-uniforme").addEventListener("click", () => {
+    const nuevoUniforme = {
+      zapatos: document.getElementById("zapatos").checked,
+      playera: document.getElementById("playera").checked,
+      pantalon: document.getElementById("pantalon").checked,
+      sueter: document.getElementById("sueter").checked,
+      corte_pelo: document.getElementById("corte_pelo").checked,
+      observacion: document.getElementById("observacion-uniforme").value,
+    };
+
+    alumnoItem.dataset.uniforme = JSON.stringify(nuevoUniforme);
+    modalContainer.innerHTML = "";
+  });
+
+  document.getElementById("cerrar-modal").addEventListener("click", () => {
+    modalContainer.innerHTML = "";
+  });
+}
+
+// Función para abrir modal de comentario (para usar en lista.js)
+export function abrirModalComentario(alumno) {
+  const alumnoItem = document.querySelector(
+    `.alumno-item[data-id-alumno="${alumno.id_alumno}"]`
+  );
+  const comentarioActual = alumnoItem.dataset.comentario || "";
+
+  const modalContainer = document.getElementById("modal-container");
+  modalContainer.innerHTML = "";
+
+  const fondo = document.createElement("div");
+  fondo.className = "modal";
+
+  const contenido = document.createElement("div");
+  contenido.className = "modal-content";
+  contenido.innerHTML = `
+    <h3>Comentario para ${alumno.nombre}</h3>
+    <textarea id="comentario-modal" style="width:90%; height:80px;">${comentarioActual}</textarea><br>
+    <button id="guardar-comentario">Guardar</button>
+    <button id="cerrar-modal">Cerrar</button>
+  `;
+
+  fondo.appendChild(contenido);
+  modalContainer.appendChild(fondo);
+
+  document
+    .getElementById("guardar-comentario")
+    .addEventListener("click", () => {
+      const nuevoComentario = document.getElementById("comentario-modal").value;
+      alumnoItem.dataset.comentario = nuevoComentario;
+      modalContainer.innerHTML = "";
+    });
+
+  document.getElementById("cerrar-modal").addEventListener("click", () => {
+    modalContainer.innerHTML = "";
+  });
 }
