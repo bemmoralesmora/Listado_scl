@@ -1,6 +1,7 @@
 import { cargarSignup } from "./signup.js";
 import { inicio } from "./inicioView.js";
 import { handleLogin } from "../modulos/funciones_login.js";
+import { recuperar_pass } from "./recuperar_pass.js";
 
 function Login() {
   const login = document.createElement("section");
@@ -48,21 +49,18 @@ function Login() {
 
   form.appendChild(inputEmail);
   form.appendChild(inputPassword);
-  form.appendChild(errorElement); // Añadido antes del botón
+  form.appendChild(errorElement);
   form.appendChild(botonLogin);
   login.appendChild(form);
 
-  // Enlace Sign Up
-  const signupText = document.createElement("p");
-  const signupLink = document.createElement("a");
-  signupLink.href = "#";
-  signupLink.textContent = "Sign Up";
-  signupText.appendChild(document.createTextNode("¿No tienes cuenta? "));
-  signupText.appendChild(signupLink);
+  // Botón Recuperar Contraseña
+  const recuperarBtn = document.createElement("button");
+  recuperarBtn.textContent = "¿No recuerdas tu Contraseña?";
+  recuperarBtn.className = "recuperar-btn"; // Añade estilos CSS para este botón
 
   const crearCuenta = document.createElement("div");
   crearCuenta.className = "crear";
-  crearCuenta.appendChild(signupText);
+  crearCuenta.appendChild(recuperarBtn);
   login.appendChild(crearCuenta);
 
   form.addEventListener("submit", async function (event) {
@@ -110,11 +108,11 @@ function Login() {
     }
   });
 
-  // Manejador Sign Up
-  signupLink.addEventListener("click", function (event) {
+  // Manejador Recuperar Contraseña
+  recuperarBtn.addEventListener("click", function (event) {
     event.preventDefault();
     document.querySelector("#root").innerHTML = "";
-    document.querySelector("#root").appendChild(cargarSignup());
+    document.querySelector("#root").appendChild(recuperar_pass());
   });
 
   return login;
