@@ -1,7 +1,9 @@
 // Función para cargar grados desde el backend
 export async function cargarGrados(selectElement) {
   try {
-    const response = await fetch("http://localhost:3000/grados");
+    const response = await fetch(
+      "https://backend-listadoscl.onrender.com/grados"
+    );
     const grados = await response.json();
 
     if (!response.ok) throw new Error(grados.error || "Error al cargar grados");
@@ -32,7 +34,9 @@ export async function cargarAlumnosPorGradoYFecha(
 
     // 1. Obtener el ID del grado
     const gradoResponse = await fetch(
-      `http://localhost:3000/grados/exacto/${encodeURIComponent(nombreGrado)}`
+      `https://backend-listadoscl.onrender.com/grados/exacto/${encodeURIComponent(
+        nombreGrado
+      )}`
     );
 
     if (!gradoResponse.ok) {
@@ -44,7 +48,7 @@ export async function cargarAlumnosPorGradoYFecha(
 
     // 2. Obtener los alumnos del grado con sus uniformes
     const alumnosResponse = await fetch(
-      `http://localhost:3000/grados/${idGrado}/alumnos?fecha=${fecha}`
+      `https://backend-listadoscl.onrender.com/grados/${idGrado}/alumnos?fecha=${fecha}`
     );
 
     if (!alumnosResponse.ok) {
@@ -148,7 +152,9 @@ export async function guardarAsistencia(contenedor, nombreGrado, fecha) {
   try {
     // 1. Obtener el ID del grado
     const gradoResponse = await fetch(
-      `http://localhost:3000/grados/exacto/${encodeURIComponent(nombreGrado)}`
+      `https://backend-listadoscl.onrender.com/grados/exacto/${encodeURIComponent(
+        nombreGrado
+      )}`
     );
     if (!gradoResponse.ok) throw new Error("Error al obtener el grado");
     const gradoData = await gradoResponse.json();
@@ -178,13 +184,16 @@ export async function guardarAsistencia(contenedor, nombreGrado, fecha) {
     }
 
     // 3. Enviar al backend
-    const response = await fetch("http://localhost:3000/asistencia/batch", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ asistencias }),
-    });
+    const response = await fetch(
+      "https://backend-listadoscl.onrender.com/asistencia/batch",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ asistencias }),
+      }
+    );
 
     if (!response.ok) throw new Error("Error al guardar asistencia");
 
@@ -205,17 +214,20 @@ export async function agregarAlumno(nombreCompleto, gradoSeleccionado) {
       throw new Error("Formato incorrecto. Usa: Nombre Apellido");
     }
 
-    const alumnoResponse = await fetch("http://localhost:3000/alumnos", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        nombre,
-        apellido,
-        grado: gradoSeleccionado,
-      }),
-    });
+    const alumnoResponse = await fetch(
+      "https://backend-listadoscl.onrender.com/alumnos",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nombre,
+          apellido,
+          grado: gradoSeleccionado,
+        }),
+      }
+    );
 
     if (!alumnoResponse.ok) {
       throw new Error("Error al agregar alumno");
@@ -232,13 +244,15 @@ export async function agregarAlumno(nombreCompleto, gradoSeleccionado) {
 export async function obtenerAlumnosBasicosPorGrado(nombreGrado) {
   try {
     const gradoResponse = await fetch(
-      `http://localhost:3000/grados/exacto/${encodeURIComponent(nombreGrado)}`
+      `https://backend-listadoscl.onrender.com/grados/exacto/${encodeURIComponent(
+        nombreGrado
+      )}`
     );
     if (!gradoResponse.ok) throw new Error("Grado no encontrado");
 
     const gradoData = await gradoResponse.json();
     const alumnosResponse = await fetch(
-      `http://localhost:3000/grados/${gradoData.id_grado}/alumnos`
+      `https://backend-listadoscl.onrender.com/grados/${gradoData.id_grado}/alumnos`
     );
     if (!alumnosResponse.ok) throw new Error("Error al cargar alumnos");
 
@@ -253,7 +267,7 @@ export async function obtenerAlumnosBasicosPorGrado(nombreGrado) {
 export async function cargarAsistenciaGuardada(grado, fecha) {
   try {
     const response = await fetch(
-      `http://localhost:3000/asistencia/grado/${encodeURIComponent(
+      `https://backend-listadoscl.onrender.com/asistencia/grado/${encodeURIComponent(
         grado
       )}?fecha=${fecha}`
     );
