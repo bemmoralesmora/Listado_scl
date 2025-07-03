@@ -242,6 +242,16 @@ function Lista() {
 
   create_datos.appendChild(gradoSelect);
 
+  let marcar_todos_presente = document.createElement("button");
+  marcar_todos_presente.className = "marcar_todos_presente";
+  marcar_todos_presente.textContent = "🗸 ";
+  create_datos.appendChild(marcar_todos_presente);
+
+  let marcar_todos_ausente = document.createElement("button");
+  marcar_todos_ausente.className = "marcar_todos_ausente";
+  marcar_todos_ausente.textContent = "x";
+  create_datos.appendChild(marcar_todos_ausente);
+
   // Botón para guardar asistencia
   let agregarAsistencia = document.createElement("button");
   agregarAsistencia.textContent = "Guardar Asistencia";

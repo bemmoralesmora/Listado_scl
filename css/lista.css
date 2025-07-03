@@ -91,6 +91,30 @@
   transition: all 0.3s ease;
 }
 
+.marcar_todos_presente,
+.marcar_todos_ausente {
+  all: unset;
+  width: 3.5rem;
+  height: 3.5rem;
+  background-color: var(--azul-oscuro);
+  border-radius: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Boldonse", system-ui;
+  color: var(--blanco);
+  font-size: 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.marcar_todos_presente:hover,
+.marcar_todos_ausente:hover {
+  background-color: var(--cafe-oscuro);
+  transform: translateY(-2px);
+}
+
 .agregarAsistencia:hover,
 .grado:hover,
 .mostrar-fecha:hover {

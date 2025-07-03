@@ -1,12 +1,15 @@
 export async function handleLogin(email, contraseña) {
-  const response = await fetch("http://localhost:3000/login-profesor", {
-    method: "POST",
-    mode: "cors", // Asegúrate de que el servidor acepte CORS
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, contraseña }),
-  });
+  const response = await fetch(
+    "https://backend-listadoscl.onrender.com/login-profesor",
+    {
+      method: "POST",
+      mode: "cors", // Asegúrate de que el servidor acepte CORS
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, contraseña }),
+    }
+  );
 
   const data = await response.json();
 
