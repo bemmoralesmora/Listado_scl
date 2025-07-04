@@ -347,6 +347,66 @@
   color: black;
 }
 
+.form-alumno {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group label {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input {
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--azul-oscuro);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+.form-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+#btn-guardar-alumno {
+  background-color: var(--azul-oscuro);
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+#btn-guardar-alumno:hover {
+  background-color: #357ac9;
+}
+
+#btn-guardar-alumno:active {
+  transform: scale(0.98);
+}
+
+
 /* Estados de asistencia */
 .estado-presente {
   background-color: rgba(76, 175, 80, 0.2);
