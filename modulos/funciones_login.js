@@ -1,6 +1,6 @@
 export async function handleLogin(email, contraseña) {
   const response = await fetch(
-    "https://backend-listadoscl.onrender.com/login-profesor",
+    "https://backend-listadoscl.onrender.com/profesores/login-profesor",
     {
       method: "POST",
       mode: "cors", // Asegúrate de que el servidor acepte CORS
