@@ -51,21 +51,39 @@ function Lista() {
   modalContainer.id = "modal-container";
   document.body.appendChild(modalContainer);
 
-  // Crear modal para agregar alumno
-  const modalAgregarAlumno = document.createElement("div");
-  modalAgregarAlumno.className = "modal";
-  modalAgregarAlumno.style.display = "none";
-  modalAgregarAlumno.innerHTML = `
-    <div class="modal-content">
-      <span class="close-modal">&times;</span>
-      <h2>Agregar Nuevo Alumno</h2>
-      <div class="modal-body">
-        <!-- Aquí irá el formulario para agregar alumno -->
-        <p>Formulario para agregar nuevo alumno</p>
-      </div>
+// Crear modal para agregar alumno
+const modalAgregarAlumno = document.createElement("div");
+modalAgregarAlumno.className = "modal";
+modalAgregarAlumno.style.display = "none";
+modalAgregarAlumno.innerHTML = `
+  <div class="modal-content">
+    <span class="close-modal">&times;</span>
+    <h2>Agregar Nuevo Alumno</h2>
+    <div class="modal-body">
+      <form class="form-alumno">
+        <div class="form-group">
+          <label for="nombre">Nombre completo</label>
+          <input type="text" id="nombre" name="nombre" placeholder="Ej: María Gómez" />
+        </div>
+      
+        <div class="form-group">
+          <label for="correo">Correo electrónico</label>
+          <input type="email" id="correo" name="correo" placeholder="Ej: maria@gmail.com" />
+        </div>
+      
+        <div class="form-group">
+          <label for="contrasena">Contraseña</label>
+          <input type="password" id="contrasena" name="contrasena" placeholder="Contraseña segura" />
+        </div>
+      
+        <div class="form-footer">
+          <button type="submit" id="btn-guardar-alumno">Guardar alumno</button>
+        </div>
+      </form>      
     </div>
-  `;
-  document.body.appendChild(modalAgregarAlumno);
+  </div>
+`;
+document.body.appendChild(modalAgregarAlumno);
 
   // Manejador para abrir modal
   agregarBtn.addEventListener("click", function () {
