@@ -64,7 +64,7 @@ export function crearComponenteEstadisticas() {
   return { datosAlumno, presentesBox, ausentesBox, justificadosBox, totalBox };
 }
 
-// Función para manejar la búsqueda
+// Función para manejar la búsqueda (modificada para devolver el alumno encontrado)
 export async function manejarBusqueda(
   nombre,
   buscar,
@@ -75,7 +75,7 @@ export async function manejarBusqueda(
 ) {
   if (nombre.length < 3) {
     alert("Ingresa al menos 3 caracteres para buscar");
-    return;
+    return null; // Devuelve null cuando no hay búsqueda válida
   }
 
   try {
@@ -107,6 +107,8 @@ export async function manejarBusqueda(
       alumno.total_justificados || "0";
     totalBox.querySelector(".stat-value").textContent =
       alumno.total_asistencias || "0";
+
+    return alumno; // Devuelve el alumno encontrado
   } catch (error) {
     console.error("Error:", error);
     // Restablecer valores a 0 en caso de error
@@ -116,6 +118,7 @@ export async function manejarBusqueda(
     totalBox.querySelector(".stat-value").textContent = "0";
 
     alert(error.message);
+    return null; // Devuelve null en caso de error
   } finally {
     buscar.disabled = false;
     buscar.textContent = "Buscar";

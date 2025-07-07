@@ -1,7 +1,25 @@
-import { cargarSignup } from "./signup.js";
 import { inicio } from "./inicioView.js";
 import { handleLogin } from "../modulos/funciones_login.js";
 import { recuperar_pass } from "./recuperar_pass.js";
+
+async function fetchBackend(endpoint, data) {
+  try {
+    const response = await fetch(
+      `https://backend-listadoscl.onrender.com/profesores/${endpoint}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    return await response.json();
+  } catch (error) {
+    console.error("Error:", error);
+    return { success: false, message: "Error de conexión" };
+  }
+}
 
 function Login() {
   const login = document.createElement("section");
@@ -118,4 +136,4 @@ function Login() {
   return login;
 }
 
-export { Login };
+export { Login, fetchBackend };

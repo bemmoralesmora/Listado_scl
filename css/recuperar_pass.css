@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
 }
 
 .recuperar-box {
@@ -77,4 +77,11 @@
   border: none;
   font-size: 0.9rem;
   cursor: pointer;
+}
+
+.error-message {
+  color: #f28b82;
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
+  height: 1rem;
 }
