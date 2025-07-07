@@ -80,37 +80,46 @@ function createMenuButtons(container, isSidebar) {
       document.querySelector(".sidebar").classList.remove("active");
   });
 
-  // Botón Perfil
+  // Botón Perfil - Versión corregida
   let buttonPerfil = document.createElement("button");
   buttonPerfil.textContent = "Perfil";
-  buttonPerfil.addEventListener("click", () => {
+  buttonPerfil.addEventListener("click", async () => {
+    // Hacer el callback async
     const profesorId = localStorage.getItem("profesorId");
     const profesorNombre = localStorage.getItem("profesorNombre");
     const profesorApellido = localStorage.getItem("profesorApellido");
 
     if (profesorId) {
       const usuarioData = {
-        nombre: `${profesorNombre} ${profesorApellido}`,
-        foto: "img/avatar-profesor.png",
+        id_profesor: profesorId, // Asegúrate de incluir esto
+        nombre: profesorNombre,
+        apellido: profesorApellido,
         email: `${profesorNombre.toLowerCase()}.${profesorApellido.toLowerCase()}@escuela.edu`,
-        gradoAsignado: "4to Grado - Sección A",
-        estadisticas: {
-          alumnosRegistrados: 28,
-          aprobados: 25,
-          reprobados: 3,
-          promedioGeneral: 8.7,
-        },
+        nombre_grado: "4to Grado - Sección A",
+        id_grado_asignado: 4, // Añade esto si es necesario
       };
 
-      document.querySelector(".contenido").innerHTML = "";
-      document.querySelector(".contenido").appendChild(Perfil(usuarioData));
-      if (isSidebar)
-        document.querySelector(".sidebar").classList.remove("active");
+      try {
+        document.querySelector(".contenido").innerHTML = "";
+        const perfilComponente = await Perfil(usuarioData); // Esperar la resolución
+        document.querySelector(".contenido").appendChild(perfilComponente);
+
+        if (isSidebar) {
+          document.querySelector(".sidebar").classList.remove("active");
+        }
+      } catch (error) {
+        console.error("Error al cargar el perfil:", error);
+        document.querySelector(".contenido").innerHTML = `
+        <div class="error-message">
+          <h3>Error al cargar el perfil</h3>
+          <p>${error.message}</p>
+        </div>
+      `;
+      }
     } else {
       alert("Por favor inicie sesión para ver su perfil");
     }
   });
-
   // Agregar botones comunes al contenedor
   container.appendChild(buttonInicio);
   container.appendChild(buttonLista);

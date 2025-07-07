@@ -238,6 +238,7 @@
   color: white;
   border: none;
   border-radius: 5px;
+  cursor: pointer;
 }
 
 .btn-x {
@@ -246,16 +247,16 @@
 }
 
 .modal {
+  display: none; /* Inicialmente oculto */
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
+  z-index: 1000;
   align-items: center;
   justify-content: center;
-  z-index: 999;
 }
 
 .modal-content {
@@ -310,16 +311,8 @@
   transform: translateY(-2px);
 }
 
-/* Estilos para la modal */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
+.modal.active {
+  display: flex;
 }
 
 .modal-content {
@@ -352,7 +345,7 @@
   flex-direction: column;
   gap: 1.5rem;
   margin-top: 1rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .form-group {
@@ -406,7 +399,6 @@
   transform: scale(0.98);
 }
 
-
 /* Estados de asistencia */
 .estado-presente {
   background-color: rgba(76, 175, 80, 0.2);
@@ -440,6 +432,74 @@
 
 .datos-lista::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.4);
+}
+
+.estado-presente {
+  background-color: rgba(76, 175, 80, 0.2);
+  border-left: 4px solid #4caf50;
+}
+
+.estado-ausente {
+  background-color: rgba(244, 67, 54, 0.2);
+  border-left: 4px solid #f44336;
+}
+
+.estado-justificado {
+  background-color: rgba(255, 193, 7, 0.2);
+  border-left: 4px solid #ffc107;
+}
+
+.marcar_todos_presente,
+.marcar_todos_ausente {
+  padding: 8px 8px;
+  margin: 0 5px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.marcar_todos_presente {
+  background-color: #4caf50;
+  color: white;
+}
+
+.marcar_todos_ausente {
+  background-color: #f44336;
+  color: white;
+}
+
+.marcar_todos_presente:hover,
+.marcar_todos_ausente:hover {
+  opacity: 0.8;
+  transform: translateY(-2px);
+}
+
+option.asistencia-completada {
+  background-color: #e8f5e9 !important;
+  color: #2e7d32 !important;
+  font-weight: bold;
+  position: relative;
+}
+
+option.asistencia-completada::after {
+  content: "✓";
+  margin-left: 8px;
+  color: #2e7d32;
+}
+
+select option:checked.asistencia-completada {
+  background-color: #c8e6c9 !important;
+}
+
+/* Estilo para el mensaje de asistencia completada */
+.mensaje-asistencia-completada {
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 4px;
+  font-weight: bold;
+  text-align: center;
 }
 
 /* Media Queries para responsive */

@@ -1,0 +1,23 @@
+{
+  "name": "listado_scl",
+  "version": "1.0.0",
+  "description": "Proyecto personal que rockemma quiere que presentemos en el examen",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bemmoralesmora/Listado_scl.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bemmoralesmora/Listado_scl/issues"
+  },
+  "homepage": "https://github.com/bemmoralesmora/Listado_scl#readme",
+  "dependencies": {
+    "chart.js": "^4.5.0"
+  }
+}

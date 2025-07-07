@@ -197,6 +197,31 @@ export async function guardarAsistencia(contenedor, nombreGrado, fecha) {
 
     if (!response.ok) throw new Error("Error al guardar asistencia");
 
+    // 4. Marcar el grado como completado si es la fecha actual
+    const hoy = new Date().toISOString().split("T")[0];
+    if (fecha === hoy) {
+      const completados = JSON.parse(
+        localStorage.getItem("asistenciasCompletadas") || {}
+      );
+      completados[nombreGrado] = true;
+      localStorage.setItem(
+        "asistenciasCompletadas",
+        JSON.stringify(completados)
+      );
+
+      // Actualizar visualmente el select
+      const gradoSelect = document.querySelector(".grado");
+      if (gradoSelect) {
+        const option = gradoSelect.querySelector(
+          `option[value="${nombreGrado}"]`
+        );
+        if (option) {
+          option.classList.add("asistencia-completada");
+          option.dataset.completado = "true";
+        }
+      }
+    }
+
     return await response.json();
   } catch (error) {
     console.error("Error al guardar asistencia:", error);
@@ -204,14 +229,90 @@ export async function guardarAsistencia(contenedor, nombreGrado, fecha) {
   }
 }
 
-// Función para agregar un nuevo alumno
-export async function agregarAlumno(nombreCompleto, gradoSeleccionado) {
-  try {
-    const [nombre, ...apellidos] = nombreCompleto.split(" ");
-    const apellido = apellidos.join(" ");
+// Función para inicializar la verificación de asistencias
+export function inicializarVerificadorAsistencias() {
+  verificarAsistenciasCompletadas();
 
-    if (!nombre || !apellido) {
-      throw new Error("Formato incorrecto. Usa: Nombre Apellido");
+  // Escuchar cambios en la fecha
+  const fechaInput = document.getElementById("fecha");
+  if (fechaInput) {
+    fechaInput.addEventListener("change", verificarAsistenciasCompletadas);
+  }
+}
+
+// Función para verificar asistencias completadas
+function verificarAsistenciasCompletadas() {
+  const fechaInput = document.getElementById("fecha");
+  if (!fechaInput) return;
+
+  const hoy = new Date().toISOString().split("T")[0];
+  const fechaSeleccionada = fechaInput.value;
+
+  // Si no es hoy, limpiar las marcas
+  if (fechaSeleccionada !== hoy) {
+    localStorage.removeItem("asistenciasCompletadas");
+    limpiarMarcasAsistencias();
+    return;
+  }
+
+  // Si es hoy, actualizar las marcas
+  actualizarEstiloGrados();
+}
+
+// Función para actualizar el estilo de los grados
+function actualizarEstiloGrados() {
+  const completados =
+    JSON.parse(localStorage.getItem("asistenciasCompletadas")) || {};
+  const gradoSelect = document.querySelector(".grado");
+
+  if (!gradoSelect) return;
+
+  const options = gradoSelect.querySelectorAll("option");
+
+  options.forEach((option) => {
+    if (option.value && completados[option.value]) {
+      option.classList.add("asistencia-completada");
+      option.dataset.completado = "true";
+    } else {
+      option.classList.remove("asistencia-completada");
+      delete option.dataset.completado;
+    }
+  });
+}
+
+// Función para limpiar las marcas de asistencia
+function limpiarMarcasAsistencias() {
+  const gradoSelect = document.querySelector(".grado");
+  if (!gradoSelect) return;
+
+  const options = gradoSelect.querySelectorAll("option");
+  options.forEach((option) => {
+    option.classList.remove("asistencia-completada");
+    delete option.dataset.completado;
+  });
+}
+
+// Función para agregar un nuevo alumno
+export async function agregarAlumno(
+  nombre,
+  apellido,
+  grado,
+  correo,
+  contrasena
+) {
+  try {
+    if (!nombre || !apellido || !grado || !correo || !contrasena) {
+      throw new Error("Todos los campos son requeridos");
+    }
+
+    // Validar formato de email
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+      throw new Error("Formato de correo electrónico inválido");
+    }
+
+    // Validar longitud de contraseña
+    if (contrasena.length < 8) {
+      throw new Error("La contraseña debe tener al menos 8 caracteres");
     }
 
     const alumnoResponse = await fetch(
@@ -224,13 +325,16 @@ export async function agregarAlumno(nombreCompleto, gradoSeleccionado) {
         body: JSON.stringify({
           nombre,
           apellido,
-          grado: gradoSeleccionado,
+          grado,
+          email: correo,
+          contraseña: contrasena, // En producción, esto debería estar hasheado
         }),
       }
     );
 
     if (!alumnoResponse.ok) {
-      throw new Error("Error al agregar alumno");
+      const errorData = await alumnoResponse.json();
+      throw new Error(errorData.error || "Error al agregar alumno");
     }
 
     return await alumnoResponse.json();
@@ -281,11 +385,29 @@ export async function cargarAsistenciaGuardada(grado, fecha) {
   }
 }
 
-// Función para abrir modal de uniforme (para usar en lista.js)
+// Función para abrir modal de uniforme (versión corregida)
 export function abrirModalUniforme(alumno) {
+  // Verificar que el alumno tenga los datos necesarios
+  if (!alumno || !alumno.id_alumno) {
+    console.error("Datos del alumno incompletos:", alumno);
+    return;
+  }
+
   const alumnoItem = document.querySelector(
     `.alumno-item[data-id-alumno="${alumno.id_alumno}"]`
   );
+  if (!alumnoItem) {
+    console.error("No se encontró el elemento del alumno");
+    return;
+  }
+
+  const modalContainer = document.getElementById("modal-container");
+  if (!modalContainer) {
+    console.error("No se encontró el contenedor de modales");
+    return;
+  }
+
+  // Obtener datos actuales del uniforme
   const uniformeActual = alumnoItem.dataset.uniforme
     ? JSON.parse(alumnoItem.dataset.uniforme)
     : {
@@ -297,44 +419,50 @@ export function abrirModalUniforme(alumno) {
         observacion: "",
       };
 
-  const modalContainer = document.getElementById("modal-container");
+  // Limpiar modal container
   modalContainer.innerHTML = "";
 
-  const fondo = document.createElement("div");
-  fondo.className = "modal";
-
-  const contenido = document.createElement("div");
-  contenido.className = "modal-content";
-  contenido.innerHTML = `
-    <h3>Uniforme de ${alumno.nombre}</h3>
-    <div class="uniforme-checks">
-      <label><input type="checkbox" id="zapatos" ${
-        uniformeActual.zapatos ? "checked" : ""
-      }> Zapatos</label><br>
-      <label><input type="checkbox" id="playera" ${
-        uniformeActual.playera ? "checked" : ""
-      }> Playera</label><br>
-      <label><input type="checkbox" id="pantalon" ${
-        uniformeActual.pantalon ? "checked" : ""
-      }> Pantalón</label><br>
-      <label><input type="checkbox" id="sueter" ${
-        uniformeActual.sueter ? "checked" : ""
-      }> Suéter</label><br>
-      <label><input type="checkbox" id="corte_pelo" ${
-        uniformeActual.corte_pelo ? "checked" : ""
-      }> Corte de pelo</label><br>
-      <textarea id="observacion-uniforme" placeholder="Observaciones">${
-        uniformeActual.observacion || ""
-      }</textarea>
+  // Crear estructura del modal
+  const modal = document.createElement("div");
+  modal.className = "modal active"; // Asegurar que está visible
+  modal.innerHTML = `
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h3>Uniforme de ${alumno.nombre || "Alumno"}</h3>
+      <div class="uniforme-checks">
+        <label><input type="checkbox" id="zapatos" ${
+          uniformeActual.zapatos ? "checked" : ""
+        }> Zapatos</label><br>
+        <label><input type="checkbox" id="playera" ${
+          uniformeActual.playera ? "checked" : ""
+        }> Playera</label><br>
+        <label><input type="checkbox" id="pantalon" ${
+          uniformeActual.pantalon ? "checked" : ""
+        }> Pantalón</label><br>
+        <label><input type="checkbox" id="sueter" ${
+          uniformeActual.sueter ? "checked" : ""
+        }> Suéter</label><br>
+        <label><input type="checkbox" id="corte_pelo" ${
+          uniformeActual.corte_pelo ? "checked" : ""
+        }> Corte de pelo</label><br>
+        <textarea id="observacion-uniforme" placeholder="Observaciones">${
+          uniformeActual.observacion || ""
+        }</textarea>
+      </div>
+      <button id="guardar-uniforme" class="btn-modal">Guardar</button>
     </div>
-    <button id="guardar-uniforme">Guardar</button>
-    <button id="cerrar-modal">Cerrar</button>
   `;
 
-  fondo.appendChild(contenido);
-  modalContainer.appendChild(fondo);
+  // Agregar al DOM
+  modalContainer.appendChild(modal);
 
-  document.getElementById("guardar-uniforme").addEventListener("click", () => {
+  // Cerrar modal
+  modal.querySelector(".close-modal").addEventListener("click", () => {
+    modalContainer.innerHTML = "";
+  });
+
+  // Guardar cambios
+  modal.querySelector("#guardar-uniforme").addEventListener("click", () => {
     const nuevoUniforme = {
       zapatos: document.getElementById("zapatos").checked,
       playera: document.getElementById("playera").checked,
@@ -347,46 +475,204 @@ export function abrirModalUniforme(alumno) {
     alumnoItem.dataset.uniforme = JSON.stringify(nuevoUniforme);
     modalContainer.innerHTML = "";
   });
-
-  document.getElementById("cerrar-modal").addEventListener("click", () => {
-    modalContainer.innerHTML = "";
-  });
 }
 
-// Función para abrir modal de comentario (para usar en lista.js)
-export function abrirModalComentario(alumno) {
+export async function abrirModalComentario(alumno) {
+  if (!alumno || !alumno.id_alumno) {
+    console.error("Datos del alumno incompletos:", alumno);
+    return;
+  }
+
   const alumnoItem = document.querySelector(
     `.alumno-item[data-id-alumno="${alumno.id_alumno}"]`
   );
-  const comentarioActual = alumnoItem.dataset.comentario || "";
-
   const modalContainer = document.getElementById("modal-container");
-  modalContainer.innerHTML = "";
 
-  const fondo = document.createElement("div");
-  fondo.className = "modal";
+  if (!alumnoItem || !modalContainer) {
+    console.error("Elementos del DOM no encontrados");
+    return;
+  }
 
-  const contenido = document.createElement("div");
-  contenido.className = "modal-content";
-  contenido.innerHTML = `
-    <h3>Comentario para ${alumno.nombre}</h3>
-    <textarea id="comentario-modal" style="width:90%; height:80px;">${comentarioActual}</textarea><br>
-    <button id="guardar-comentario">Guardar</button>
-    <button id="cerrar-modal">Cerrar</button>
+  // Mostrar loader
+  modalContainer.innerHTML = `
+    <div class="modal active">
+      <div class="modal-content">
+        <p>Cargando datos del alumno...</p>
+      </div>
+    </div>
   `;
 
-  fondo.appendChild(contenido);
-  modalContainer.appendChild(fondo);
+  try {
+    // Obtener datos actualizados del alumno
+    const alumnoData = await obtenerDatosAlumno(alumno.id_alumno);
+    const nombreCompleto = `${alumnoData.nombre} ${alumnoData.apellido}`.trim();
 
-  document
-    .getElementById("guardar-comentario")
-    .addEventListener("click", () => {
-      const nuevoComentario = document.getElementById("comentario-modal").value;
-      alumnoItem.dataset.comentario = nuevoComentario;
-      modalContainer.innerHTML = "";
-    });
+    // Limpiar y crear el modal
+    modalContainer.innerHTML = "";
+    const modal = document.createElement("div");
+    modal.className = "modal active";
+    modal.innerHTML = crearHTMLModal(
+      alumnoData,
+      nombreCompleto,
+      alumnoItem.dataset.comentario || ""
+    );
+    modalContainer.appendChild(modal);
 
-  document.getElementById("cerrar-modal").addEventListener("click", () => {
+    // Configurar eventos
+    configurarEventosModal(
+      modal,
+      modalContainer,
+      alumnoItem,
+      alumnoData.email,
+      nombreCompleto
+    );
+  } catch (error) {
+    console.error("Error:", error);
+    modalContainer.innerHTML = `
+      <div class="modal active">
+        <div class="modal-content">
+          <span class="close-modal">&times;</span>
+          <h3>Error</h3>
+          <p>${error.message || "Error al cargar datos del alumno"}</p>
+          <button class="btn-modal" onclick="document.getElementById('modal-container').innerHTML = ''">Cerrar</button>
+        </div>
+      </div>
+    `;
+    modalContainer
+      .querySelector(".close-modal")
+      .addEventListener("click", () => {
+        modalContainer.innerHTML = "";
+      });
+  }
+}
+
+// Funciones auxiliares
+function crearHTMLModal(alumnoData, nombreCompleto, comentarioActual) {
+  const tieneEmail = !!alumnoData.email;
+
+  return `
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h3>Comentario para ${nombreCompleto || "Alumno"}</h3>
+      <p class="grado-info">Grado: ${
+        alumnoData.nombre_grado || "No especificado"
+      }</p>
+      
+      <div class="form-group">
+        <label for="comentario-modal">Comentario:</label>
+        <textarea id="comentario-modal" rows="5">${comentarioActual}</textarea>
+      </div>
+      
+      <div class="email-options">
+        <label>
+          <input type="checkbox" id="enviar-email" ${
+            tieneEmail ? "" : "disabled"
+          }>
+          Enviar comentario por correo
+        </label>
+        ${
+          tieneEmail
+            ? `
+          <div class="email-info">
+            Se enviará a: <strong>${alumnoData.email}</strong>
+          </div>`
+            : `
+          <div class="email-warning">
+            No hay correo registrado para este alumno
+          </div>`
+        }
+      </div>
+      
+      <div class="modal-buttons">
+        <button id="guardar-comentario" class="btn-modal">Guardar</button>
+        ${
+          tieneEmail
+            ? '<button id="guardar-enviar" class="btn-modal enviar-btn">Guardar y Enviar</button>'
+            : ""
+        }
+      </div>
+    </div>
+  `;
+}
+
+function configurarEventosModal(
+  modal,
+  modalContainer,
+  alumnoItem,
+  emailAlumno,
+  nombreAlumno
+) {
+  // Cerrar modal
+  modal.querySelector(".close-modal").addEventListener("click", () => {
     modalContainer.innerHTML = "";
   });
+
+  // Guardar comentario
+  modal.querySelector("#guardar-comentario").addEventListener("click", () => {
+    alumnoItem.dataset.comentario =
+      modal.querySelector("#comentario-modal").value;
+    modalContainer.innerHTML = "";
+  });
+
+  // Guardar y enviar
+  if (emailAlumno) {
+    modal
+      .querySelector("#guardar-enviar")
+      .addEventListener("click", async () => {
+        const comentario = modal.querySelector("#comentario-modal").value;
+        const enviarEmail = modal.querySelector("#enviar-email").checked;
+
+        alumnoItem.dataset.comentario = comentario;
+
+        if (enviarEmail) {
+          const boton = modal.querySelector("#guardar-enviar");
+          boton.textContent = "Enviando...";
+          boton.disabled = true;
+
+          try {
+            await enviarComentarioPorEmail({
+              email: emailAlumno,
+              alumno: nombreAlumno,
+              comentario: comentario,
+            });
+            alert("Comentario guardado y correo enviado con éxito");
+          } catch (error) {
+            alert(
+              "Comentario guardado, pero hubo un error al enviar el correo"
+            );
+          }
+        }
+        modalContainer.innerHTML = "";
+      });
+  }
+}
+
+async function obtenerDatosAlumno(idAlumno) {
+  const response = await fetch(
+    `https://backend-listadoscl.onrender.com/alumnos/${idAlumno}`
+  );
+  if (!response.ok) {
+    throw new Error((await response.text()) || "Error al obtener alumno");
+  }
+  return await response.json();
+}
+
+async function enviarComentarioPorEmail({ email, alumno, comentario }) {
+  const response = await fetch(
+    "https://backend-listadoscl.onrender.com/asistencia/enviar-email",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        destinatario: email,
+        asunto: `Nuevo comentario sobre ${alumno}`,
+        mensaje: `Estimado/a,\n\nSe ha registrado un nuevo comentario sobre el alumno ${alumno}:\n\n${comentario}\n\n--\nSistema de Gestión Escolar`,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error((await response.text()) || "Error al enviar correo");
+  }
+  return await response.json();
 }
