@@ -3,13 +3,25 @@ import { Login, fetchBackend } from "./login.js";
 function recuperar_pass() {
   const recuperar_pass = document.createElement("div");
   recuperar_pass.className = "recuperar-pass";
+
+  // Obtener el tipo de usuario del localStorage
+  const userType = localStorage.getItem("userType") || "profesor";
+  recuperar_pass.dataset.userType = userType;
+
   renderPantallaCorreo(recuperar_pass);
   return recuperar_pass;
 }
 
 async function renderPantallaCorreo(container) {
+  const userType = container.dataset.userType;
+  const baseUrl = "https://backend-listadoscl.onrender.com";
+  const endpoint =
+    userType === "admin"
+      ? "/admin/recuperar-contrasena"
+      : "/profesores/recuperarPass";
+
   container.innerHTML = `
-    <div class="recuperar-box dark-mode">
+    <div class="recuperar-box ${userType}-mode">
       <img src="assets/images/LogoSCL.png" class="logo-google" />
       <h2>Recuperación de cuenta</h2>
       <p>Ingresa tu dirección de correo electrónico para buscar tu cuenta</p>
@@ -28,8 +40,14 @@ async function renderPantallaCorreo(container) {
   container
     .querySelector("#enviar-codigo")
     .addEventListener("click", async () => {
-      const correo = container.querySelector("#correo").value;
+      const correo = container.querySelector("#correo").value.trim();
       const errorMessage = container.querySelector("#error-message");
+
+      // Validación de email
+      if (!correo) {
+        errorMessage.textContent = "Por favor ingresa un correo electrónico.";
+        return;
+      }
 
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
         errorMessage.textContent =
@@ -38,13 +56,32 @@ async function renderPantallaCorreo(container) {
       }
 
       errorMessage.textContent = "";
-      const response = await fetchBackend("recuperarPass", { email: correo });
+      container.querySelector("#enviar-codigo").disabled = true;
+      container.querySelector("#enviar-codigo").textContent = "Enviando...";
 
-      if (response.success) {
+      try {
+        const response = await fetch(baseUrl + endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: correo }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Error al enviar el código");
+        }
+
         renderPantallaCodigo(container, correo);
-      } else {
+      } catch (error) {
+        console.error("Error:", error);
         errorMessage.textContent =
-          response.message || "Error al enviar el código";
+          error.message || "Error de conexión con el servidor";
+      } finally {
+        container.querySelector("#enviar-codigo").disabled = false;
+        container.querySelector("#enviar-codigo").textContent = "Siguiente";
       }
     });
 
@@ -55,10 +92,17 @@ async function renderPantallaCorreo(container) {
 }
 
 async function renderPantallaCodigo(container, correo) {
+  const userType = container.dataset.userType;
+  const baseUrl = "https://backend-listadoscl.onrender.com";
+  const endpoint =
+    userType === "admin"
+      ? "/admin/verificar-codigo"
+      : "/profesores/verificarCodigo";
+
   container.innerHTML = `
-    <div class="recuperar-box dark-mode">
+    <div class="recuperar-box ${userType}-mode">
       <img src="assets/images/LogoSCL.png" class="logo-google" />
-      <h2>Recuperación de cuentas</h2>
+      <h2>Recuperación de cuenta</h2>
       <p>Un correo electrónico con un código de verificación se acaba de enviar a <b>${correo}</b></p>
 
       <label for="codigo">Ingresa código</label>
@@ -75,8 +119,14 @@ async function renderPantallaCodigo(container, correo) {
   container
     .querySelector("#verificar-codigo")
     .addEventListener("click", async () => {
-      const codigo = container.querySelector("#codigo").value;
+      const codigo = container.querySelector("#codigo").value.trim();
       const errorMessage = container.querySelector("#error-message");
+
+      if (!codigo) {
+        errorMessage.textContent =
+          "Por favor ingresa el código de verificación.";
+        return;
+      }
 
       if (!/^\d{4}$/.test(codigo)) {
         errorMessage.textContent =
@@ -85,15 +135,36 @@ async function renderPantallaCodigo(container, correo) {
       }
 
       errorMessage.textContent = "";
-      const response = await fetchBackend("verificarCodigo", {
-        email: correo,
-        codigo: codigo,
-      });
+      container.querySelector("#verificar-codigo").disabled = true;
+      container.querySelector("#verificar-codigo").textContent =
+        "Verificando...";
 
-      if (response.success) {
+      try {
+        const response = await fetch(baseUrl + endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: correo,
+            codigo: codigo,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Código incorrecto");
+        }
+
         renderPantallaNuevaPassword(container, correo, codigo);
-      } else {
-        errorMessage.textContent = response.message || "Código incorrecto";
+      } catch (error) {
+        console.error("Error:", error);
+        errorMessage.textContent =
+          error.message || "Error de conexión con el servidor";
+      } finally {
+        container.querySelector("#verificar-codigo").disabled = false;
+        container.querySelector("#verificar-codigo").textContent = "Siguiente";
       }
     });
 
@@ -103,17 +174,24 @@ async function renderPantallaCodigo(container, correo) {
 }
 
 function renderPantallaNuevaPassword(container, correo, codigo) {
+  const userType = container.dataset.userType;
+  const baseUrl = "https://backend-listadoscl.onrender.com";
+  const endpoint =
+    userType === "admin"
+      ? "/admin/actualizar-contrasena"
+      : "/profesores/actualizarPass";
+
   container.innerHTML = `
-    <div class="recuperar-box dark-mode">
+    <div class="recuperar-box ${userType}-mode">
       <img src="assets/images/LogoSCL.png" class="logo-google" />
       <h2>Nueva contraseña</h2>
       <p>Escribe tu nueva contraseña para continuar</p>
 
       <label for="pass1">Nueva contraseña</label>
-      <input type="password" id="pass1" />
+      <input type="password" id="pass1" placeholder="Mínimo 8 caracteres" />
 
       <label for="pass2">Confirmar contraseña</label>
-      <input type="password" id="pass2" />
+      <input type="password" id="pass2" placeholder="Repite tu contraseña" />
       <p id="error-message" class="error-message"></p>
 
       <div class="acciones">
@@ -132,25 +210,53 @@ function renderPantallaNuevaPassword(container, correo, codigo) {
       if (!p1 || !p2) {
         errorMessage.textContent = "Completa ambos campos";
         return;
-      } else if (p1 !== p2) {
+      }
+
+      if (p1.length < 8) {
+        errorMessage.textContent =
+          "La contraseña debe tener al menos 8 caracteres";
+        return;
+      }
+
+      if (p1 !== p2) {
         errorMessage.textContent = "Las contraseñas no coinciden";
         return;
       }
 
       errorMessage.textContent = "";
-      const response = await fetchBackend("actualizarPass", {
-        email: correo,
-        codigo: codigo,
-        nuevaContraseña: p1,
-      });
+      container.querySelector("#guardar-pass").disabled = true;
+      container.querySelector("#guardar-pass").textContent = "Guardando...";
 
-      if (response.success) {
-        alert("Contraseña actualizada correctamente");
+      try {
+        const response = await fetch(baseUrl + endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: correo,
+            codigo: codigo,
+            nuevaContraseña: p1,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Error al actualizar la contraseña");
+        }
+
+        alert("¡Contraseña actualizada correctamente!");
         document.querySelector("#root").innerHTML = "";
         document.querySelector("#root").appendChild(Login());
-      } else {
+      } catch (error) {
+        console.error("Error:", error);
         errorMessage.textContent =
-          response.message || "Error al actualizar la contraseña";
+          error.message || "Error de conexión con el servidor";
+      } finally {
+        container.querySelector("#guardar-pass").disabled = false;
+        container.querySelector("#guardar-pass").textContent =
+          "Guardar y volver";
       }
     });
 }
