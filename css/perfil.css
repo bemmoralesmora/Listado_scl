@@ -12,13 +12,11 @@
 
 /* Estructura principal */
 .perfil {
-  width: 100%;
-  height: 100%;
-  margin: 1rem auto;
-  padding: 0.8rem;
+  min-height: calc(100vh - 120px);
+  padding: 20px;
   box-sizing: border-box;
-  font-family: "Boldonse", system-ui;
-  font-size: 12px;
+  display: flex;
+  flex-direction: column;
 }
 
 .perfil-container {

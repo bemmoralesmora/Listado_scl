@@ -165,7 +165,7 @@
 
 .contenedor-desplegable {
   width: 100%;
-  height: 10rem;
+  max-height: 15em; /* Usamos max-height en lugar de height para flexibilidad */
   margin-top: 2rem;
   padding: 1rem;
   background-color: var(--azul-oscuro);
@@ -176,6 +176,28 @@
   margin-right: auto;
   color: white;
   transition: all 0.3s ease;
+  overflow-y: auto; /* Esto activa la barra de desplazamiento vertical cuando sea necesario */
+  box-sizing: border-box; /* Asegura que el padding no afecte las dimensiones totales */
+  word-wrap: break-word; /* Para que el texto largo no salga del contenedor */
+}
+
+/* Personalización de la barra de desplazamiento */
+.contenedor-desplegable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.contenedor-desplegable::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.contenedor-desplegable::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.contenedor-desplegable::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 .contenedor-desplegable2 {

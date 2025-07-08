@@ -1,19 +1,20 @@
 import { inicio } from "./inicioView.js";
-import { handleLogin } from "../modulos/funciones_login.js";
+import { handleLogin, handleAdminLogin } from "../modulos/funciones_login.js";
 import { recuperar_pass } from "./recuperar_pass.js";
 
-async function fetchBackend(endpoint, data) {
+async function fetchBackend(userType, endpoint, data) {
   try {
-    const response = await fetch(
-      `https://backend-listadoscl.onrender.com/profesores/${endpoint}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      }
-    );
+    const baseUrl = "https://backend-listadoscl.onrender.com";
+    const url = `${baseUrl}/${userType}/${endpoint}`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
     return await response.json();
   } catch (error) {
     console.error("Error:", error);
@@ -36,6 +37,31 @@ function Login() {
   logoLogin.className = "logo-login";
   logoLogin.appendChild(logoDiv);
   login.appendChild(logoLogin);
+
+  // Selector de tipo de usuario
+  const userTypeDiv = document.createElement("div");
+  userTypeDiv.className = "user-type-selector";
+
+  const userTypeLabel = document.createElement("label");
+  userTypeLabel.textContent = "Tipo de usuario: ";
+
+  const userTypeSelect = document.createElement("select");
+  userTypeSelect.id = "userType";
+
+  const optionProfesor = document.createElement("option");
+  optionProfesor.value = "profesor";
+  optionProfesor.textContent = "Profesor";
+
+  const optionAdmin = document.createElement("option");
+  optionAdmin.value = "admin";
+  optionAdmin.textContent = "Administrador";
+
+  userTypeSelect.appendChild(optionProfesor);
+  userTypeSelect.appendChild(optionAdmin);
+
+  userTypeDiv.appendChild(userTypeLabel);
+  userTypeDiv.appendChild(userTypeSelect);
+  login.appendChild(userTypeDiv);
 
   // Formulario
   const form = document.createElement("form");
@@ -74,7 +100,7 @@ function Login() {
   // Botón Recuperar Contraseña
   const recuperarBtn = document.createElement("button");
   recuperarBtn.textContent = "¿No recuerdas tu Contraseña?";
-  recuperarBtn.className = "recuperar-btn"; // Añade estilos CSS para este botón
+  recuperarBtn.className = "recuperar-btn";
 
   const crearCuenta = document.createElement("div");
   crearCuenta.className = "crear";
@@ -95,20 +121,36 @@ function Login() {
     try {
       const email = inputEmail.value.trim();
       const password = inputPassword.value.trim();
+      const userType = userTypeSelect.value;
+
+      // Guardar tipo de usuario en localStorage
+      localStorage.setItem("userType", userType);
 
       // Validación frontend
       if (!email || !password) {
         throw new Error("Por favor completa todos los campos");
       }
 
-      // Mostrar en consola lo que se enviará
-      console.log("Enviando:", { email, password });
-
-      const data = await handleLogin(email, password);
-
-      // Redirigir después de login exitoso
-      document.querySelector("#root").innerHTML = "";
-      document.querySelector("#root").appendChild(inicio());
+      let data;
+      if (userType === "admin") {
+        data = await handleAdminLogin(email, password);
+        // Guardar datos de sesión de admin
+        localStorage.setItem("adminId", data.admin.id);
+        localStorage.setItem("adminNombre", data.admin.nombre);
+        localStorage.setItem("adminApellido", data.admin.apellido);
+        // Redirigir a dashboard de admin
+        // document.querySelector("#root").innerHTML = "";
+        // document.querySelector("#root").appendChild(adminDashboard());
+      } else {
+        data = await handleLogin(email, password);
+        // Guardar datos de sesión de profesor
+        localStorage.setItem("profesorId", data.profesor.id);
+        localStorage.setItem("profesorNombre", data.profesor.nombre);
+        localStorage.setItem("profesorApellido", data.profesor.apellido);
+        // Redirigir a vista normal
+        document.querySelector("#root").innerHTML = "";
+        document.querySelector("#root").appendChild(inicio());
+      }
     } catch (error) {
       console.error("Error en login:", error);
       errorElement.textContent = error.message;
@@ -129,6 +171,8 @@ function Login() {
   // Manejador Recuperar Contraseña
   recuperarBtn.addEventListener("click", function (event) {
     event.preventDefault();
+    const userType = userTypeSelect.value;
+    // Aquí podrías implementar lógica diferente para recuperar contraseña de admin/profesor
     document.querySelector("#root").innerHTML = "";
     document.querySelector("#root").appendChild(recuperar_pass());
   });
