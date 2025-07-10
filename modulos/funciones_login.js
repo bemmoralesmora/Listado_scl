@@ -22,7 +22,7 @@ export async function handleLogin(email, contraseña) {
 
 export async function handleAdminLogin(email, contraseña) {
   const response = await fetch(
-    "https://backend-listadoscl.onrender.com/admin/login", // Ruta corregida
+    "https://backend-listadoscl.onrender.com/admin/login",
     {
       method: "POST",
       mode: "cors",
@@ -42,14 +42,33 @@ export async function handleAdminLogin(email, contraseña) {
   return data;
 }
 
-export function saveSessionData(profesorData) {
-  localStorage.setItem("profesorId", profesorData.id);
-  localStorage.setItem("profesorNombre", profesorData.nombre);
-  localStorage.setItem("profesorApellido", profesorData.apellido);
+export function saveAdminSessionData(adminData, token) {
+  try {
+    if (!adminData?.id || !token) {
+      throw new Error("Datos de administrador incompletos");
+    }
+
+    localStorage.setItem("adminId", adminData.id);
+    localStorage.setItem("adminNombre", adminData.nombre);
+    localStorage.setItem("adminApellido", adminData.apellido);
+    localStorage.setItem("userRole", "admin");
+    localStorage.setItem("authToken", token);
+    localStorage.setItem("lastLogin", new Date().toISOString());
+  } catch (error) {
+    console.error("Error guardando sesión de admin:", error);
+    throw error;
+  }
 }
 
-export function saveAdminSessionData(adminData) {
-  localStorage.setItem("adminId", adminData.id);
-  localStorage.setItem("adminNombre", adminData.nombre);
-  localStorage.setItem("adminApellido", adminData.apellido);
+// Función adicional recomendada
+export function clearSessionData() {
+  localStorage.removeItem("profesorId");
+  localStorage.removeItem("profesorNombre");
+  localStorage.removeItem("profesorApellido");
+  localStorage.removeItem("adminId");
+  localStorage.removeItem("adminNombre");
+  localStorage.removeItem("adminApellido");
+  localStorage.removeItem("userRole");
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("lastLogin");
 }

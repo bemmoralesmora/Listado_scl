@@ -4,6 +4,7 @@ import { Registro } from "./registro.js";
 import { Login } from "./login.js";
 import { Perfil } from "./perfil.js";
 import { admin } from "./admin.js";
+import { isAdmin as checkAdmin } from "./aunt.js";
 
 function header() {
   let header = document.createElement("header");
@@ -20,10 +21,7 @@ function header() {
   // Menú principal para desktop
   let menuDesktop = document.createElement("div");
   menuDesktop.className = "menu";
-
-  // Botones del menú desktop
   createMenuButtons(menuDesktop, false);
-
   header.appendChild(menuDesktop);
 
   // Botón hamburguesa para móvil
@@ -35,10 +33,7 @@ function header() {
   // Sidebar (menú lateral para móvil)
   let sidebar = document.createElement("div");
   sidebar.className = "sidebar";
-
-  // Botones del sidebar
   createMenuButtons(sidebar, true);
-
   document.body.appendChild(sidebar);
 
   // Event listener para el botón hamburguesa
@@ -49,9 +44,8 @@ function header() {
   return header;
 }
 
-// Función para crear los botones del menú (reutilizable para desktop y móvil)
 function createMenuButtons(container, isSidebar) {
-  // Botón Inicio
+  // Botón Inicio (visible para todos)
   let buttonInicio = document.createElement("button");
   buttonInicio.textContent = "Inicio";
   buttonInicio.addEventListener("click", () => {
@@ -63,119 +57,145 @@ function createMenuButtons(container, isSidebar) {
     if (isSidebar)
       document.querySelector(".sidebar").classList.remove("active");
   });
+  container.appendChild(buttonInicio);
 
-  // Botón Lista
-  let buttonLista = document.createElement("button");
-  buttonLista.textContent = "Lista";
-  buttonLista.addEventListener("click", () => {
-    const contenido = document.querySelector(".contenido");
-    if (contenido) {
-      contenido.innerHTML = "";
-      contenido.appendChild(Lista());
-    }
-    if (isSidebar)
-      document.querySelector(".sidebar").classList.remove("active");
-  });
+  // Obtener información del usuario
+  const userIsAdmin = checkAdmin();
+  const userIsProfesor = localStorage.getItem("profesorId") !== null;
+  const isLoggedIn = userIsAdmin || userIsProfesor;
 
-  // Botón Registro
-  let buttonRegistro = document.createElement("button");
-  buttonRegistro.textContent = "Registro";
-  buttonRegistro.addEventListener("click", () => {
-    const contenido = document.querySelector(".contenido");
-    if (contenido) {
-      contenido.innerHTML = "";
-      contenido.appendChild(Registro());
-    }
-    if (isSidebar)
-      document.querySelector(".sidebar").classList.remove("active");
-  });
-
-  // Botón Perfil - Versión corregida
-  let buttonPerfil = document.createElement("button");
-  buttonPerfil.textContent = "Perfil";
-  buttonPerfil.addEventListener("click", async () => {
-    try {
-      const profesorId = localStorage.getItem("profesorId");
-      if (!profesorId) {
-        alert("Por favor inicie sesión para ver su perfil");
-        return;
-      }
-
-      const contenido = document.querySelector(".contenido");
-      if (!contenido) {
-        console.error("No se encontró el contenedor de contenido");
-        return;
-      }
-
-      // Mostrar loader
-      contenido.innerHTML = '<div class="loader">Cargando perfil...</div>';
-
-      const profesorNombre = localStorage.getItem("profesorNombre");
-      const profesorApellido = localStorage.getItem("profesorApellido");
-
-      const usuarioData = {
-        id_profesor: profesorId,
-        nombre: profesorNombre,
-        apellido: profesorApellido,
-        email: `${profesorNombre.toLowerCase()}.${profesorApellido.toLowerCase()}@escuela.edu`,
-        nombre_grado: "4to Grado - Sección A",
-        id_grado_asignado: 4,
-      };
-
-      // Cargar el componente de perfil
-      const perfilComponente = await Perfil(usuarioData);
-
-      // Reemplazar contenido
-      contenido.innerHTML = "";
-      contenido.appendChild(perfilComponente);
-
-      // Cerrar sidebar si es móvil
-      if (isSidebar)
-        document.querySelector(".sidebar").classList.remove("active");
-    } catch (error) {
-      console.error("Error al cargar el perfil:", error);
+  // Botón Lista (para profesores y administradores)
+  if (userIsProfesor || userIsAdmin) {
+    let buttonLista = document.createElement("button");
+    buttonLista.textContent = "Lista";
+    buttonLista.addEventListener("click", () => {
       const contenido = document.querySelector(".contenido");
       if (contenido) {
-        contenido.innerHTML = `
-                  <div class="error-message">
-                      <h3>Error al cargar el perfil</h3>
-                      <p>${error.message}</p>
-                  </div>
-              `;
+        contenido.innerHTML = "";
+        contenido.appendChild(Lista());
       }
-    }
-  });
+      if (isSidebar)
+        document.querySelector(".sidebar").classList.remove("active");
+    });
+    container.appendChild(buttonLista);
+  }
 
-  let buttonAdmin = document.createElement("button");
-  buttonAdmin.textContent = "Admin";
-  buttonAdmin.addEventListener("click", () => {
-    const contenido = document.querySelector(".contenido");
-    if (contenido) {
-      contenido.innerHTML = "";
-      contenido.appendChild(admin());
-    }
-    if (isSidebar)
-      document.querySelector(".sidebar").classList.remove("active");
-  });
+  // Botón Registro (para profesores y administradores)
+  if (userIsProfesor || userIsAdmin) {
+    let buttonRegistro = document.createElement("button");
+    buttonRegistro.textContent = "Registro";
+    buttonRegistro.addEventListener("click", () => {
+      const contenido = document.querySelector(".contenido");
+      if (contenido) {
+        contenido.innerHTML = "";
+        contenido.appendChild(Registro());
+      }
+      if (isSidebar)
+        document.querySelector(".sidebar").classList.remove("active");
+    });
+    container.appendChild(buttonRegistro);
+  }
 
-  // Agregar botones comunes al contenedor
-  container.appendChild(buttonInicio);
-  container.appendChild(buttonLista);
-  container.appendChild(buttonRegistro);
-  container.appendChild(buttonPerfil);
-  container.appendChild(buttonAdmin);
+  // Botón Perfil (para ambos roles)
+  if (isLoggedIn) {
+    let buttonPerfil = document.createElement("button");
+    buttonPerfil.textContent = "Perfil";
+    buttonPerfil.addEventListener("click", async () => {
+      try {
+        const contenido = document.querySelector(".contenido");
+        if (!contenido) {
+          console.error("No se encontró el contenedor de contenido");
+          return;
+        }
 
-  // Botones de login/logout según estado
-  const isLoggedIn = localStorage.getItem("profesorId");
+        contenido.innerHTML = '<div class="loader">Cargando perfil...</div>';
 
+        let usuarioData;
+
+        if (userIsAdmin) {
+          usuarioData = {
+            id: localStorage.getItem("adminId"),
+            nombre: localStorage.getItem("adminNombre"),
+            apellido: localStorage.getItem("adminApellido"),
+            email: "admin@escuela.edu",
+            rol: "Administrador",
+          };
+        } else {
+          usuarioData = {
+            id: localStorage.getItem("profesorId"),
+            nombre: localStorage.getItem("profesorNombre"),
+            apellido: localStorage.getItem("profesorApellido"),
+            email: `${localStorage
+              .getItem("profesorNombre")
+              .toLowerCase()}.${localStorage
+              .getItem("profesorApellido")
+              .toLowerCase()}@escuela.edu`,
+            nombre_grado: "4to Grado - Sección A",
+            id_grado_asignado: 4,
+            rol: "Profesor",
+          };
+        }
+
+        const perfilComponente = await Perfil(usuarioData);
+        contenido.innerHTML = "";
+        contenido.appendChild(perfilComponente);
+
+        if (isSidebar)
+          document.querySelector(".sidebar").classList.remove("active");
+      } catch (error) {
+        console.error("Error al cargar el perfil:", error);
+        const contenido = document.querySelector(".contenido");
+        if (contenido) {
+          contenido.innerHTML = `
+            <div class="error-message">
+              <h3>Error al cargar el perfil</h3>
+              <p>${error.message}</p>
+            </div>
+          `;
+        }
+      }
+    });
+    container.appendChild(buttonPerfil);
+  }
+
+  // Botón Admin (solo para administradores)
+  if (userIsAdmin) {
+    let buttonAdmin = document.createElement("button");
+    buttonAdmin.textContent = "Admin";
+    buttonAdmin.addEventListener("click", async () => {
+      try {
+        const contenido = document.querySelector(".contenido");
+        if (contenido) {
+          contenido.innerHTML =
+            '<div class="loader">Cargando panel de administración...</div>';
+          const adminPanel = await admin();
+          contenido.innerHTML = "";
+          contenido.appendChild(adminPanel);
+        }
+        if (isSidebar)
+          document.querySelector(".sidebar").classList.remove("active");
+      } catch (error) {
+        console.error("Error al cargar el panel de administración:", error);
+        if (contenido) {
+          contenido.innerHTML = `
+            <div class="error-message">
+              <h3>Error al cargar el panel de administración</h3>
+              <p>${error.message}</p>
+            </div>
+          `;
+        }
+      }
+    });
+    container.appendChild(buttonAdmin);
+  }
+
+  // Botón Login/Logout
   if (isLoggedIn) {
     const logoutBtn = document.createElement("button");
     logoutBtn.textContent = "Cerrar sesión";
     logoutBtn.className = isSidebar ? "logout-btn" : "";
     logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem("profesorId");
-      localStorage.removeItem("profesorNombre");
-      localStorage.removeItem("profesorApellido");
+      localStorage.clear();
       window.location.reload();
     });
     container.appendChild(logoutBtn);

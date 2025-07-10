@@ -1,31 +1,36 @@
-async function fetchDatosProfesor(idProfesor) {
+import { isAdmin } from "./aunt.js";
+
+async function fetchDatosUsuario(idUsuario) {
   try {
-    if (!idProfesor) {
-      console.error("ID de profesor no proporcionado");
-      throw new Error("ID de profesor inválido");
+    if (!idUsuario) {
+      console.error("ID de usuario no proporcionado");
+      throw new Error("ID de usuario inválido");
     }
 
-    console.log(`Fetching profesor data for ID: ${idProfesor}`);
-    const response = await fetch(
-      `https://backend-listadoscl.onrender.com/perfil/profesor/${idProfesor}`
-    );
+    const endpoint = isAdmin()
+      ? `https://backend-listadoscl.onrender.com/perfil/admin/${idUsuario}`
+      : `https://backend-listadoscl.onrender.com/perfil/profesor/${idUsuario}`;
+
+    console.log(`Fetching user data from: ${endpoint}`);
+    const response = await fetch(endpoint);
 
     if (!response.ok) {
       console.error(`Error en respuesta: ${response.status}`);
-      throw new Error("Error al obtener datos del profesor");
+      throw new Error("Error al obtener datos del usuario");
     }
 
     const data = await response.json();
-    console.log("Datos del profesor recibidos:", data);
+    console.log("Datos del usuario recibidos:", data);
     return data;
   } catch (error) {
-    console.error("Error en fetchDatosProfesor:", error);
+    console.error("Error en fetchDatosUsuario:", error);
     return {
       nombre: "Error",
       apellido: "",
       email: "No se pudo cargar la información",
       nombre_grado: "No asignado",
       id_grado_asignado: null,
+      rol: isAdmin() ? "Administrador" : "Profesor",
     };
   }
 }
@@ -33,15 +38,14 @@ async function fetchDatosProfesor(idProfesor) {
 async function Perfil(usuarioData) {
   console.log("Iniciando creación de perfil con datos:", usuarioData);
 
-  // Verificar que usuarioData tenga id_profesor
-  if (!usuarioData || !usuarioData.id_profesor) {
-    console.error("Datos de usuario inválidos o falta id_profesor");
+  if (!usuarioData || !usuarioData.id) {
+    console.error("Datos de usuario inválidos o falta id");
     const errorSection = document.createElement("section");
     errorSection.className = "perfil error";
     errorSection.innerHTML = `
       <div class="error-message">
         <h3>Error en los datos</h3>
-        <p>No se proporcionó un ID de profesor válido.</p>
+        <p>No se proporcionó un ID de usuario válido.</p>
       </div>
     `;
     return errorSection;
@@ -51,12 +55,13 @@ async function Perfil(usuarioData) {
   perfilSection.className = "perfil";
 
   try {
-    const profesorData = await fetchDatosProfesor(usuarioData.id_profesor);
-    console.log("Datos del profesor a mostrar:", profesorData);
+    const userData = await fetchDatosUsuario(usuarioData.id);
+    console.log("Datos del usuario a mostrar:", userData);
 
     const perfilContainer = document.createElement("div");
     perfilContainer.className = "perfil-container";
 
+    // Contenido principal del perfil
     const perfilContent = document.createElement("div");
     perfilContent.className = "perfil-content";
 
@@ -65,13 +70,16 @@ async function Perfil(usuarioData) {
     fotoSection.className = "perfil-foto";
 
     const fotoImg = document.createElement("img");
-    fotoImg.src = "https://cdn-icons-png.flaticon.com/512/12225/12225881.png";
+    fotoImg.src =
+      userData.foto ||
+      "https://cdn-icons-png.flaticon.com/512/12225/12225881.png";
     fotoImg.alt = "Foto de perfil";
     fotoImg.id = "fotoPerfil";
 
     const btnCambiarFoto = document.createElement("button");
     btnCambiarFoto.className = "btn-cambiar-foto";
     btnCambiarFoto.textContent = "Cambiar Foto";
+    btnCambiarFoto.style.display = isAdmin() ? "none" : "block";
 
     fotoSection.appendChild(fotoImg);
     fotoSection.appendChild(btnCambiarFoto);
@@ -80,15 +88,32 @@ async function Perfil(usuarioData) {
     const datosSection = document.createElement("div");
     datosSection.className = "perfil-datos";
 
-    datosSection.innerHTML = `
-      <h3>${profesorData.nombre || "Profesor"} ${
-      profesorData.apellido || ""
-    }</h3>
-      <p><strong>Email:</strong> ${profesorData.email || "No especificado"}</p>
-      <p><strong>Grado Asignado:</strong> ${
-        profesorData.nombre_grado || "No asignado"
-      }</p>
-    `;
+    const nombreCompleto = document.createElement("h3");
+    nombreCompleto.textContent = `${userData.nombre || "Usuario"} ${
+      userData.apellido || ""
+    }`;
+
+    const rolElement = document.createElement("p");
+    rolElement.innerHTML = `<strong>Rol:</strong> ${
+      userData.rol || (isAdmin() ? "Administrador" : "Profesor")
+    }`;
+
+    const emailElement = document.createElement("p");
+    emailElement.innerHTML = `<strong>Email:</strong> ${
+      userData.email || "No especificado"
+    }`;
+
+    datosSection.appendChild(nombreCompleto);
+    datosSection.appendChild(rolElement);
+    datosSection.appendChild(emailElement);
+
+    if (!isAdmin()) {
+      const gradoElement = document.createElement("p");
+      gradoElement.innerHTML = `<strong>Grado Asignado:</strong> ${
+        userData.nombre_grado || "No asignado"
+      }`;
+      datosSection.appendChild(gradoElement);
+    }
 
     const btnEditar = document.createElement("button");
     btnEditar.className = "btn-editar";
@@ -97,82 +122,87 @@ async function Perfil(usuarioData) {
 
     perfilContent.appendChild(fotoSection);
     perfilContent.appendChild(datosSection);
+    perfilContainer.appendChild(perfilContent);
 
-    // Sección de estadísticas
-    const estadisticasSection = document.createElement("div");
-    estadisticasSection.className = "perfil-estadisticas";
-    estadisticasSection.innerHTML = `
-      <h3>Datos Estadísticos del Grado</h3>
-      <div class="estadisticas-grid"></div>
-      <div class="visualizaciones-container">
-        <div class="visualizacion-asistencia-container"></div>
-        <div class="visualizacion-uniforme-container"></div>
-      </div>
-    `;
+    // Sección de estadísticas (solo para profesores con grado asignado)
+    if (!isAdmin() && userData.id_grado_asignado) {
+      const estadisticasSection = document.createElement("div");
+      estadisticasSection.className = "perfil-estadisticas";
 
-    const estadisticasGrid =
-      estadisticasSection.querySelector(".estadisticas-grid");
+      const tituloEstadisticas = document.createElement("h3");
+      tituloEstadisticas.textContent = "Datos Estadísticos del Grado";
+      estadisticasSection.appendChild(tituloEstadisticas);
 
-    // Items de estadísticas básicas
-    const estadisticasData = [
-      { label: "Grado Asignado", value: profesorData.nombre_grado || "N/A" },
-    ];
+      const estadisticasGrid = document.createElement("div");
+      estadisticasGrid.className = "estadisticas-grid";
 
-    estadisticasData.forEach((item) => {
-      const itemElement = document.createElement("div");
-      itemElement.className = "estadistica-item";
-      itemElement.innerHTML = `
-        <span class="estadistica-valor">${item.value}</span>
-        <span class="estadistica-label">${item.label}</span>
+      // Item de grado asignado
+      const gradoItem = document.createElement("div");
+      gradoItem.className = "estadistica-item";
+      gradoItem.innerHTML = `
+        <span class="estadistica-valor">${userData.nombre_grado || "N/A"}</span>
+        <span class="estadistica-label">Grado Asignado</span>
       `;
-      estadisticasGrid.appendChild(itemElement);
-    });
+      estadisticasGrid.appendChild(gradoItem);
 
-    // Solo intentar obtener estadísticas si hay grado asignado
-    if (profesorData.id_grado_asignado) {
       try {
         const asistenciaData = await fetchEstadisticasAsistencia(
-          profesorData.id_grado_asignado
+          userData.id_grado_asignado
         );
         if (asistenciaData) {
-          crearVisualizacionAsistencia(
-            estadisticasSection.querySelector(
-              ".visualizacion-asistencia-container"
-            ),
-            asistenciaData
+          // Agregar estadísticas de asistencia
+          const alumnosItem = document.createElement("div");
+          alumnosItem.className = "estadistica-item";
+          alumnosItem.innerHTML = `
+            <span class="estadistica-valor">${
+              asistenciaData.totalAlumnos || 0
+            }</span>
+            <span class="estadistica-label">Alumnos Registrados</span>
+          `;
+          estadisticasGrid.appendChild(alumnosItem);
+
+          const presentesItem = document.createElement("div");
+          presentesItem.className = "estadistica-item";
+          presentesItem.innerHTML = `
+            <span class="estadistica-valor">${
+              asistenciaData.presentes || 0
+            }</span>
+            <span class="estadistica-label">Presentes</span>
+          `;
+          estadisticasGrid.appendChild(presentesItem);
+
+          const ausentesItem = document.createElement("div");
+          ausentesItem.className = "estadistica-item";
+          ausentesItem.innerHTML = `
+            <span class="estadistica-valor">${
+              asistenciaData.ausentes || 0
+            }</span>
+            <span class="estadistica-label">Ausentes</span>
+          `;
+          estadisticasGrid.appendChild(ausentesItem);
+
+          // Visualización de asistencia
+          const visualizacionesContainer = document.createElement("div");
+          visualizacionesContainer.className = "visualizaciones-container";
+
+          const asistenciaContainer = document.createElement("div");
+          asistenciaContainer.className = "visualizacion-asistencia-container";
+
+          crearVisualizacionAsistencia(asistenciaContainer, asistenciaData);
+          visualizacionesContainer.appendChild(asistenciaContainer);
+
+          const uniformeData = await fetchEstadisticasUniforme(
+            userData.id_grado_asignado
           );
+          if (uniformeData) {
+            const uniformeContainer = document.createElement("div");
+            uniformeContainer.className = "visualizacion-uniforme-container";
+            crearVisualizacionUniforme(uniformeContainer, uniformeData);
+            visualizacionesContainer.appendChild(uniformeContainer);
+          }
 
-          // Agregar estadísticas adicionales
-          const estadisticasAdicionales = [
-            {
-              label: "Alumnos Registrados",
-              value: asistenciaData.totalAlumnos || 0,
-            },
-            { label: "Presentes", value: asistenciaData.presentes || 0 },
-            { label: "Ausentes", value: asistenciaData.ausentes || 0 },
-          ];
-
-          estadisticasAdicionales.forEach((item) => {
-            const elem = document.createElement("div");
-            elem.className = "estadistica-item";
-            elem.innerHTML = `
-              <span class="estadistica-valor">${item.value}</span>
-              <span class="estadistica-label">${item.label}</span>
-            `;
-            estadisticasGrid.appendChild(elem);
-          });
-        }
-
-        const uniformeData = await fetchEstadisticasUniforme(
-          profesorData.id_grado_asignado
-        );
-        if (uniformeData) {
-          crearVisualizacionUniforme(
-            estadisticasSection.querySelector(
-              ".visualizacion-uniforme-container"
-            ),
-            uniformeData
-          );
+          estadisticasSection.appendChild(estadisticasGrid);
+          estadisticasSection.appendChild(visualizacionesContainer);
         }
       } catch (error) {
         console.error("Error al obtener estadísticas:", error);
@@ -181,16 +211,16 @@ async function Perfil(usuarioData) {
         errorElem.textContent = "Error al cargar estadísticas del grado";
         estadisticasSection.appendChild(errorElem);
       }
-    } else {
+
+      perfilContainer.appendChild(estadisticasSection);
+    } else if (!isAdmin()) {
       const noGradoElem = document.createElement("div");
       noGradoElem.className = "info-message";
       noGradoElem.textContent =
         "No hay grado asignado para mostrar estadísticas";
-      estadisticasSection.appendChild(noGradoElem);
+      perfilContainer.appendChild(noGradoElem);
     }
 
-    perfilContainer.appendChild(perfilContent);
-    perfilContainer.appendChild(estadisticasSection);
     perfilSection.appendChild(perfilContainer);
   } catch (error) {
     console.error("Error crítico al crear perfil:", error);
@@ -198,6 +228,7 @@ async function Perfil(usuarioData) {
       <div class="error-message">
         <h3>Error inesperado</h3>
         <p>Ocurrió un error al cargar el perfil. Por favor recarga la página.</p>
+        <p>${error.message}</p>
       </div>
     `;
   }
@@ -205,7 +236,7 @@ async function Perfil(usuarioData) {
   return perfilSection;
 }
 
-// Funciones para obtener estadísticas (agregar al inicio del archivo)
+// Funciones para obtener estadísticas
 async function fetchEstadisticasAsistencia(idGrado) {
   try {
     console.log(`Fetching asistencia data for grado ID: ${idGrado}`);
@@ -248,7 +279,7 @@ async function fetchEstadisticasUniforme(idGrado) {
   }
 }
 
-// Funciones para crear visualizaciones (agregar antes de la función Perfil)
+// Funciones para crear visualizaciones
 function crearVisualizacionAsistencia(container, data) {
   if (!container || !data) return;
 

@@ -100,6 +100,7 @@
 
 /* Sección de datos */
 .perfil-datos {
+  height: auto;
   flex: 2 1 280px;
   min-width: 0;
 }
@@ -159,6 +160,11 @@
   margin-top: 1.5rem;
   width: 100%;
   box-sizing: border-box;
+  /* Nuevas propiedades para el scroll */
+  max-height: 500px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--azul-claro) var(--gris-claro);
 }
 
 .perfil-estadisticas h3 {
@@ -336,6 +342,21 @@
   color: var(--azul-claro);
 }
 
+/* Estilos personalizados para la barra de scroll */
+.perfil-estadisticas::-webkit-scrollbar {
+  width: 6px;
+}
+
+.perfil-estadisticas::-webkit-scrollbar-track {
+  background: var(--gris-claro);
+  border-radius: 3px;
+}
+
+.perfil-estadisticas::-webkit-scrollbar-thumb {
+  background-color: var(--azul-claro);
+  border-radius: 3px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .perfil-container {
@@ -359,12 +380,28 @@
     max-width: 100%;
     padding: 0.6rem;
   }
+
+  /* Ajustes específicos para estadísticas en móviles */
+  .perfil-estadisticas {
+    max-height: 100px; /* Altura reducida para móviles */
+    padding: 1rem;
+    margin-top: -10rem;
+  }
+
+  .estadisticas-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.8rem;
+  }
+
+  .visualizaciones-container {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 480px) {
   .estadisticas-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    gap: 0.6rem;
   }
 
   .uniforme-items {
@@ -385,6 +422,20 @@
 
   .perfil-container {
     padding: 1rem;
+  }
+
+  /* Ajustes adicionales para pantallas muy pequeñas */
+  .perfil-estadisticas {
+    max-height: 100px;
+  }
+
+  .estadistica-item {
+    padding: 0.3rem;
+  }
+
+  .estadistica-valor,
+  .estadistica-label {
+    font-size: 0.9rem;
   }
 }
 
