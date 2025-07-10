@@ -16,15 +16,6 @@ function desing_inicio() {
     h1.textContent = `Bienvenido Profesor: ${profesorNombre} ${profesorApellido}`;
   } else if (adminNombre && adminApellido) {
     h1.textContent = `Bienvenido Administrador: ${adminNombre} ${adminApellido}`;
-    // Agregar botón para panel de administración
-    const adminBtn = document.createElement("button");
-    adminBtn.textContent = "Panel de Administración";
-    adminBtn.className = "admin-btn";
-    adminBtn.addEventListener("click", () => {
-      // Redirigir al panel de admin (debes implementar esta vista)
-      console.log("Ir al panel de administración");
-    });
-    section.appendChild(adminBtn);
   } else {
     h1.textContent = "Bienvenido";
   }

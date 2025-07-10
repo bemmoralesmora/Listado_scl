@@ -122,15 +122,21 @@
   transform: translateY(-2px);
 }
 
+/* CONTENEDOR PRINCIPAL MODIFICADO */
 .datos-lista {
   width: 100%;
   height: auto;
-  max-height: 60vh;
+  max-height: 60vh; /* Altura máxima inicial */
   padding: 1rem;
-  display: flex;
+  display: fdatos-lex;
   flex-direction: column;
   gap: 1rem;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  box-sizing: border-box;
 }
 
 .alumno-item {
@@ -230,7 +236,7 @@
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
 }
 
-/* Agrega esto a tu CSS o desde JS con style.innerHTML */
+/* MODAL STYLES (se mantienen igual) */
 .btn-modal {
   padding: 6px 12px;
   margin: 4px;
@@ -247,7 +253,7 @@
 }
 
 .modal {
-  display: none; /* Inicialmente oculto */
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
@@ -405,22 +411,22 @@
 /* Estados de asistencia */
 .estado-presente {
   background-color: rgba(76, 175, 80, 0.2);
-  border-color: #4caf50;
+  border-left: 4px solid #4caf50;
 }
 
 .estado-ausente {
   background-color: rgba(244, 67, 54, 0.2);
-  border-color: #f44336;
+  border-left: 4px solid #f44336;
 }
 
 .estado-justificado {
   background-color: rgba(255, 193, 7, 0.2);
-  border-color: #ffc107;
+  border-left: 4px solid #ffc107;
 }
 
 /* Scrollbar */
 .datos-lista::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .datos-lista::-webkit-scrollbar-track {
@@ -435,21 +441,6 @@
 
 .datos-lista::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.4);
-}
-
-.estado-presente {
-  background-color: rgba(76, 175, 80, 0.2);
-  border-left: 4px solid #4caf50;
-}
-
-.estado-ausente {
-  background-color: rgba(244, 67, 54, 0.2);
-  border-left: 4px solid #f44336;
-}
-
-.estado-justificado {
-  background-color: rgba(255, 193, 7, 0.2);
-  border-left: 4px solid #ffc107;
 }
 
 .marcar_todos_presente,
@@ -494,17 +485,6 @@ select option:checked.asistencia-completada {
   background-color: #c8e6c9 !important;
 }
 
-/* Estilo para el mensaje de asistencia completada */
-.mensaje-asistencia-completada {
-  margin: 10px 0;
-  padding: 10px;
-  background-color: #e8f5e9;
-  color: #2e7d32;
-  border-radius: 4px;
-  font-weight: bold;
-  text-align: center;
-}
-
 /* Media Queries para responsive */
 @media (max-width: 1024px) {
   .create-datos {
@@ -520,7 +500,7 @@ select option:checked.asistencia-completada {
     height: 3.2rem;
   }
 
-  .agregar {
+  .icono-fecha {
     width: 3.2rem;
     height: 3.2rem;
   }
@@ -531,6 +511,7 @@ select option:checked.asistencia-completada {
     flex-direction: column;
     align-items: stretch;
     gap: 1rem;
+    padding: 1rem;
   }
 
   .agregar_input,
@@ -540,10 +521,15 @@ select option:checked.asistencia-completada {
     width: 100%;
   }
 
+  .datos-lista {
+    max-height: 55vh;
+    padding: 0.8rem;
+  }
+
   .alumno-item {
     flex-direction: column;
     align-items: stretch;
-    padding: 1rem;
+    padding: 0.8rem;
     gap: 0.8rem;
   }
 
@@ -555,19 +541,73 @@ select option:checked.asistencia-completada {
   .alumno-item h1 {
     min-width: 100%;
     white-space: normal;
-  }
-  .lista {
-    padding: 0.3rem;
+    text-align: center;
   }
 
-  .create-datos {
-    padding: 0.6rem;
-    gap: 0.6rem;
+  .lista {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .datos-lista {
+    max-height: 50vh;
   }
 
   .alumno-item {
     padding: 0.7rem;
+  }
+
+  .cont-inputs {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
     gap: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cont-inputs > * {
+    flex: 0 0 auto;
+  }
+
+  .estado-asistencia {
+    min-width: 110px;
+    font-size: 0.8rem;
+  }
+
+  .comentario-asistencia {
+    min-width: 140px;
+  }
+
+  .create-datos {
+    padding: 0.8rem;
+    gap: 0.8rem;
+  }
+}
+
+@media (max-height: 700px) {
+  .datos-lista {
+    max-height: 25vh;
+  }
+}
+
+@media (max-height: 600px) {
+  .datos-lista {
+    max-height: 45vh;
+  }
+}
+
+@media (max-height: 500px) {
+  .datos-lista {
+    max-height: 40vh;
+  }
+}
+
+@media (max-width: 360px) {
+  .datos-lista {
+    max-height: 45vh;
+    padding: 0.5rem;
   }
 
   .estado-asistencia {
@@ -575,80 +615,11 @@ select option:checked.asistencia-completada {
     font-size: 0.75rem;
   }
 
-  @media (max-width: 480px) {
-    .alumno-item {
-      flex-direction: column;
-      align-items: stretch;
-      padding: 0.8rem;
-    }
-
-    .alumno-item h1 {
-      margin-bottom: 0.5rem;
-      text-align: center;
-    }
-
-    .cont-inputs {
-      flex-direction: row;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      padding-bottom: 0.5rem;
-      justify-content: flex-start;
-      -webkit-overflow-scrolling: touch; /* Para scroll suave en iOS */
-    }
-
-    .cont-inputs > * {
-      flex: 0 0 auto;
-    }
-
-    .estado-asistencia {
-      min-width: 100px; /* Reduce el ancho mínimo */
-      font-size: 0.8rem; /* Reduce el tamaño de la fuente */
-      padding: 0.4rem; /* Ajusta el relleno interno */
-    }
-
-    /* Estilos para la barra de scroll en móviles */
-    .cont-inputs::-webkit-scrollbar {
-      height: 4px;
-    }
-
-    .cont-inputs::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 2px;
-    }
-
-    .cont-inputs::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.3);
-      border-radius: 2px;
-    }
+  .comentario-asistencia {
+    min-width: 120px;
   }
 
-  @media (max-height: 600px) {
-    .datos-lista {
-      max-height: 50vh;
-    }
-  }
-
-  @media (max-width: 360px) {
-    .alumno-item h1 {
-      font-size: 0.8rem;
-    }
-
-    .estado-asistencia {
-      min-width: 80px; /* Reduce aún más el ancho mínimo */
-      font-size: 0.7rem; /* Reduce el tamaño de la fuente */
-      padding: 0.3rem; /* Ajusta el relleno interno */
-    }
-
-    .btn-modal {
-      padding: 0.3rem 0.5rem;
-      font-size: 0.6rem;
-    }
-  }
-
-  /* Estilos para cuando el teclado está activo en móviles */
-  @media (max-height: 500px) {
-    .datos-lista {
-      max-height: 40vh;
-    }
+  .alumno-item h1 {
+    font-size: 0.9rem;
   }
 }

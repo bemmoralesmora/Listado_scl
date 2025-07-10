@@ -1,78 +1,78 @@
-/* Estilos generales del panel de administración */
+/* Estilos para el panel de administración */
 .admin {
-  padding: 20px;
+  padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.admin h2 {
-  color: #2c3e50;
-  margin-bottom: 20px;
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
 }
 
-/* Estilos para las opciones del admin */
+.admin-logout-btn {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.admin-logout-btn:hover {
+  background-color: #d32f2f;
+}
+
 .admin-options {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
 }
 
 .admin-option {
-  padding: 15px;
+  background: white;
   border-radius: 8px;
-  background-color: #f8f9fa;
+  padding: 1.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  align-items: flex-start;
 }
 
 .admin-option:hover {
-  background-color: #e9ecef !important;
   transform: translateY(-5px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-.admin-option h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  color: #2c3e50;
+.option-icon {
+  font-size: 2rem;
+  margin-right: 1rem;
 }
 
-.admin-option p {
+.option-text h3 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+}
+
+.option-text p {
   margin: 0;
-  color: #7f8c8d;
-  font-size: 14px;
+  color: #666;
+  font-size: 0.9rem;
 }
 
-/* Estilos para el botón de cerrar como X */
-.btn-close-x {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  width: 30px;
-  height: 30px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 20px;
-  color: #7f8c8d;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.3s ease;
-}
-
-.btn-close-x:hover {
-  color: #e74c3c;
-}
-/* Estilos para el modal de gestión de profesores */
+/* Estilos para los modales */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
@@ -80,125 +80,111 @@
   z-index: 1000;
 }
 
-.teacher-modal {
-  background-color: white;
-  padding: 20px;
+.teacher-modal,
+.edit-teacher-modal,
+.password-modal {
+  background: white;
+  padding: 2rem;
   border-radius: 8px;
-  width: 80%;
+  width: 90%;
   max-width: 800px;
-  max-height: 80vh;
+  max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   position: relative;
 }
 
-.teacher-modal h2 {
-  margin-top: 0;
-  color: #2c3e50;
+.btn-close-x {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
 }
 
-/* Estilos para la tabla de profesores */
+/* Estilos para tablas */
 .teachers-table {
   width: 100%;
   border-collapse: collapse;
-  margin: 20px 0;
+  margin-top: 1rem;
 }
 
-.teachers-table th {
-  padding: 10px;
+.teachers-table th,
+.teachers-table td {
+  padding: 12px 15px;
   text-align: left;
   border-bottom: 1px solid #ddd;
 }
 
-.teachers-table td {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
+.teachers-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
 }
 
-/* Estilos para los botones */
+.actions-cell {
+  display: flex;
+  gap: 0.5rem;
+}
+
 .btn {
-  padding: 10px 20px;
-  color: white;
+  padding: 6px 12px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  font-size: 0.9rem;
 }
 
-.btn-close {
-  background-color: #3498db;
-  margin-top: 20px;
-}
-
-.btn-close:hover {
-  background-color: #2980b9;
+.btn-edit {
+  background-color: #2196f3;
+  color: white;
 }
 
 .btn-delete {
-  padding: 5px 10px;
-  background-color: #e74c3c;
+  background-color: #f44336;
+  color: white;
 }
 
-.btn-delete:hover {
-  background-color: #c0392b;
+.btn-add-teacher {
+  background-color: #4caf50;
+  color: white;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
 }
 
-/* Estilos para el modal de verificación de contraseña */
-.password-modal {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 300px;
-}
-
-.password-modal h3 {
-  margin-top: 0;
-}
-
-.password-modal label {
-  display: block;
-  margin-bottom: 5px;
-}
-
-.password-modal input {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 15px;
-  border: 1px solid #ddd;
+/* Notificaciones */
+.notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #4caf50;
+  color: white;
+  padding: 1rem;
   border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1002;
+  animation: slideIn 0.5s;
 }
 
-.btn-container {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+.notification.fade-out {
+  animation: fadeOut 0.5s;
 }
 
-.btn-cancel {
-  background-color: #95a5a6;
-  padding: 5px 10px;
-}
-
-.btn-confirm {
-  background-color: #2ecc71;
-  padding: 5px 10px;
-}
-
-.btn-cancel:hover {
-  background-color: #7f8c8d;
-}
-
-.btn-confirm:hover {
-  background-color: #27ae60;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .admin-options {
-    grid-template-columns: 1fr !important;
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
   }
+  to {
+    transform: translateX(0);
+  }
+}
 
-  .teacher-modal {
-    width: 95%;
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
   }
 }

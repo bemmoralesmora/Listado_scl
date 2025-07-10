@@ -123,9 +123,6 @@ function Login() {
       const password = inputPassword.value.trim();
       const userType = userTypeSelect.value;
 
-      // Guardar tipo de usuario en localStorage
-      localStorage.setItem("userType", userType);
-
       // Validación frontend
       if (!email || !password) {
         throw new Error("Por favor completa todos los campos");
@@ -134,29 +131,34 @@ function Login() {
       let data;
       if (userType === "admin") {
         data = await handleAdminLogin(email, password);
-        // Guardar datos de sesión de admin
+        // Guardar datos de sesión de admin de manera robusta
         localStorage.setItem("adminId", data.admin.id);
         localStorage.setItem("adminNombre", data.admin.nombre);
         localStorage.setItem("adminApellido", data.admin.apellido);
-        // Redirigir a dashboard de admin
-        // document.querySelector("#root").innerHTML = "";
-        // document.querySelector("#root").appendChild(adminDashboard());
+        localStorage.setItem("userRole", "admin");
+        localStorage.setItem("userType", "admin");
+        window.localStorage.setItem("adminSession", "active");
       } else {
         data = await handleLogin(email, password);
         // Guardar datos de sesión de profesor
         localStorage.setItem("profesorId", data.profesor.id);
         localStorage.setItem("profesorNombre", data.profesor.nombre);
         localStorage.setItem("profesorApellido", data.profesor.apellido);
-        // Redirigir a vista normal
+        localStorage.setItem("userRole", "profesor");
+        localStorage.setItem("userType", "profesor");
+        window.localStorage.setItem("profesorSession", "active");
+      }
+
+      // Redirigir después de asegurar que los datos están guardados
+      setTimeout(() => {
         document.querySelector("#root").innerHTML = "";
         document.querySelector("#root").appendChild(inicio());
-      }
+      }, 100);
     } catch (error) {
       console.error("Error en login:", error);
       errorElement.textContent = error.message;
       errorElement.style.display = "block";
 
-      // Enfocar el campo con error
       if (error.message.includes("email")) {
         inputEmail.focus();
       } else {
@@ -171,8 +173,6 @@ function Login() {
   // Manejador Recuperar Contraseña
   recuperarBtn.addEventListener("click", function (event) {
     event.preventDefault();
-    const userType = userTypeSelect.value;
-    // Aquí podrías implementar lógica diferente para recuperar contraseña de admin/profesor
     document.querySelector("#root").innerHTML = "";
     document.querySelector("#root").appendChild(recuperar_pass());
   });
