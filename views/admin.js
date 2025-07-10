@@ -2,49 +2,34 @@ import { isAdmin, getAuthToken } from "./aunt.js";
 import { showNotification } from "./notifications.js";
 
 async function admin() {
-  console.log("Inicializando panel de administración");
-
-  // Verificación de permisos
-  if (!isAdmin()) {
-    console.error("Intento de acceso no autorizado al panel de admin");
-    showNotification("Acceso no autorizado", "error");
-    logout();
-    return null;
-  }
-
-  const token = getAuthToken();
-  if (!token) {
-    console.error("No se encontró token de autenticación");
-    showNotification("Sesión inválida", "error");
-    logout();
-    return null;
-  }
+  // Crear contenedor principal
+  const adminSection = document.createElement("div");
+  adminSection.className = "admin";
 
   try {
-    // Crear contenedor principal
-    let adminSection = document.createElement("div");
-    adminSection.className = "admin";
+    // 1. Obtener información del admin desde el backend
+    const adminData = await fetchAdminInfo(getAuthToken());
 
-    // 1. Obtener información del admin
-    const adminInfo = await fetchAdminInfo(token);
-    if (!adminInfo) {
-      throw new Error("No se pudo cargar la información del administrador");
-    }
+    // 2. Crear cabecera con información del admin
+    adminSection.appendChild(createAdminHeader(adminData));
 
-    // 2. Crear cabecera
-    adminSection.appendChild(createAdminHeader(adminInfo));
-
-    // 3. Crear opciones
-    const optionsContainer = createAdminOptions();
-    adminSection.appendChild(optionsContainer);
-
-    console.log("Panel de administración cargado correctamente");
-    return adminSection;
+    // 3. Crear y agregar opciones del panel
+    adminSection.appendChild(createAdminOptions());
   } catch (error) {
-    console.error("Error en admin():", error);
-    showNotification(error.message || "Error al cargar el panel", "error");
-    return createErrorPanel(error.message);
+    console.error("Error en función admin:", error);
+    showNotification(
+      error.message || "Error al cargar el panel de administración",
+      "error"
+    );
+
+    // Mostrar panel de error si falla la carga
+    const errorPanel = createErrorPanel(
+      "No se pudo cargar el panel de administración"
+    );
+    adminSection.appendChild(errorPanel);
   }
+
+  return adminSection;
 }
 
 async function fetchAdminInfo(token) {
@@ -56,19 +41,19 @@ async function fetchAdminInfo(token) {
       }
     );
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.message || "Error al cargar información");
+    if (response.status === 401) {
+      logout(); // Si el token es inválido
+      throw new Error("Sesión expirada");
     }
 
-    const adminData = await response.json();
-    localStorage.setItem("adminNombre", adminData.nombre);
-    localStorage.setItem("adminApellido", adminData.apellido);
+    if (!response.ok) {
+      throw new Error("Error al cargar datos del admin");
+    }
 
-    return adminData;
+    return await response.json();
   } catch (error) {
-    console.error("Error fetching admin info:", error);
-    throw error;
+    console.error("Error en fetchAdminInfo:", error);
+    throw error; // Propaga el error para manejarlo en `admin()`
   }
 }
 
@@ -98,43 +83,66 @@ function createAdminOptions() {
       icon: "⚙️",
       title: "Configuración del sistema",
       description: "Ajustes generales de la plataforma",
-      handler: () => showNotification("Funcionalidad en desarrollo"),
+      handler: () => showNotification("Funcionalidad en desarrollo", "info"),
     },
     {
       icon: "📊",
       title: "Reportes y estadísticas",
       description: "Visualiza datos del sistema",
-      handler: () => showNotification("Funcionalidad en desarrollo"),
+      handler: () => showNotification("Funcionalidad en desarrollo", "info"),
     },
     {
       icon: "💾",
       title: "Copias de seguridad",
       description: "Gestiona respaldos del sistema",
-      handler: () => showNotification("Funcionalidad en desarrollo"),
+      handler: () => showNotification("Funcionalidad en desarrollo", "info"),
     },
   ];
 
-  options.forEach((opt) => {
-    const option = createAdminOption(opt.icon, opt.title, opt.description);
-    option.addEventListener("click", opt.handler);
-    optionsContainer.appendChild(option);
+  options.forEach((option) => {
+    const optionElement = createAdminOption(
+      option.icon,
+      option.title,
+      option.description
+    );
+    optionElement.addEventListener("click", option.handler);
+    optionsContainer.appendChild(optionElement);
   });
 
   return optionsContainer;
 }
 
+function createAdminOption(icon, title, description) {
+  const option = document.createElement("div");
+  option.className = "admin-option";
+
+  option.innerHTML = `
+    <div class="option-icon">${icon}</div>
+    <div class="option-content">
+      <h3>${title}</h3>
+      <p>${description}</p>
+    </div>
+    <div class="option-arrow">→</div>
+  `;
+
+  return option;
+}
+
 function createErrorPanel(message) {
   const errorPanel = document.createElement("div");
   errorPanel.className = "admin-error-panel";
+
   errorPanel.innerHTML = `
-    <h2>Error en el panel de administración</h2>
+    <div class="error-icon">⚠️</div>
+    <h3>Error</h3>
     <p>${message}</p>
     <div class="error-actions">
-      <button id="retry-btn">Reintentar</button>
-      <button id="logout-btn">Cerrar sesión</button>
+      <button class="error-btn" id="retry-btn">Reintentar</button>
+      <button class="error-btn" id="logout-btn">Cerrar sesión</button>
     </div>
   `;
 
+  // Agregar event listeners
   errorPanel.querySelector("#retry-btn").addEventListener("click", () => {
     window.location.reload();
   });
@@ -546,9 +554,6 @@ async function editTeacher(teacher, modal, table) {
   overlay.appendChild(editModal);
   document.body.appendChild(overlay);
 }
-
-// Resto de las funciones (verifyAdminPassword, createAdminOption) permanecen igual
-// Solo necesitan pequeñas modificaciones para usar fetch en verifyAdminPassword
 
 async function verifyAdminPassword() {
   return new Promise(async (resolve) => {
